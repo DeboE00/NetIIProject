@@ -1,5 +1,6 @@
 #!/bin/sh
 
+export MONGODB_STARTUP_TIME=15
 
 echo "Launching PCRF..."
 

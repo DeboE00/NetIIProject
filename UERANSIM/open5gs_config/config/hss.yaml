@@ -1,6 +1,6 @@
 ### For reference, see `open5gs.conf`
 
-db_uri: mongodb://mongodb/open5gs
+db_uri: mongodb://10.1.0.5/open5gs
 
 logger:
     file: /var/log/open5gs/hss.log
