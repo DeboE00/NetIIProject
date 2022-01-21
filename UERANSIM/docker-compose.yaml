@@ -1,5 +1,14 @@
 version: "3"
 networks:
+  #Open5GS network
+  open5gs_network:
+     driver: bridge
+     ipam:
+        driver: default
+        config:
+          - subnet: 10.1.0.0/24
+            gateway: 10.1.0.1
+  # UERANSIM network
   ueransim:
      driver: bridge
      ipam:
@@ -12,8 +21,156 @@ networks:
               amf_ip: 10.0.0.10
               blocked_address1: 10.0.0.2
               blocked_address2: 10.0.0.3
+
+volumes:
+  mongodb_data:
+    
      
 services:
+  # Open5GS services
+  mongodb:
+    image: mongo:latest
+    volumes:
+      - mongodb_data:/data/db
+    hostname: mongodb
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.5
+  
+  mongodbloader:
+    image: mongo:latest
+    depends_on:
+      - webui
+    environment:
+      - DB_HOST=mongodb
+    volumes:
+      - "./open5gs_config/provisioning/db/run_db.sh:/tmp/run.sh"
+      - "./open5gs_config/db/imsi1.json:/tmp/imsi1.sh"
+    entrypoint:
+      - /bin/sh
+      - /tmp/run.sh
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.19
+
+  webui:
+    image: open5gs/open5gs-webui:latest
+    depends_on:
+      - mongodb
+    environment:
+      - db_URI=mongodb://mongodb/open5gs
+    container_name: webui
+    hostname: webui
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_webui.sh"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.6
+    
+  hss:
+    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    depends_on:
+      - mongodb
+    container_name: hss
+    hostname: hss
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_hss.sh"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/hss:/var/log/open5gs"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.10
+
+  mme:
+    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    depends_on:
+      - hss
+    container_name: mme
+    hostname: mme
+    entrypoint:
+     - "/bin/sh"
+     - "/etc/open5gs/run_mme.sh"
+    ports:
+     - "36412:36412"
+     - "36412:36412/udp"
+    expose:
+     - "2123"
+     - "2123/udp"
+    volumes:
+     - "./open5gs_config/config:/etc/open5gs"
+     - "./open5gs_config/log/mme:/var/log/open5gs"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.20
+
+  sgw:
+    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    container_name: sgw
+    hostname: sgw
+    entrypoint:
+     - "/bin/sh"
+     - "/etc/open5gs/run_sgw.sh"
+    volumes:
+     - "./open5gs_config/config:/etc/open5gs"
+     - "./open5gs_config/log/sgw:/var/log/open5gs"
+    ports:
+      - "2152:2152"
+      - "2152:2152/udp"
+      - "2123:2123"
+      - "2123:2123/udp"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.30
+
+  pgw:
+    build: ./open5gs_config/pgw
+    container_name: pgw
+    hostname: pgw
+    entrypoint:
+     - "/bin/sh"
+     - "/etc/open5gs/run_pgw.sh"
+    volumes:
+     - "./open5gs_config/config:/etc/open5gs"
+     - "./open5gs_config/log/pgw:/var/log/open5gs"
+    expose:
+     - "2123"
+     - "2123/udp"
+     - "2152"
+     - "2152/udp"
+    cap_add:
+      -  NET_ADMIN
+    devices:
+      -  /dev/net/tun
+    privileged: true # if IPv6 enabled
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.40
+
+  pcrf:
+    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    depends_on:
+      - mongodb
+      - hss
+    container_name: pcrf
+    hostname: pcrf
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_pcrf.sh"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/pcrf:/var/log/open5gs"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.50
+  
+  # UERANSIM services
   gnb:
      image: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
      networks:

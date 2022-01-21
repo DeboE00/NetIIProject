@@ -12,4 +12,5 @@ MAINTAINER enrico.debon@studenti.unitn.it
 RUN apt update && apt install lksctp-tools iproute2 -y --no-install-recommends && apt clean
 RUN mkdir /UERANSIM
 WORKDIR /UERANSIM/
+ENV PATH="/UERANSIM:${PATH}"
 COPY --from=builder /UERANSIM/build/* /UERANSIM/
