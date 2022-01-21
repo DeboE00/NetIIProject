@@ -1,6 +1,6 @@
-image: docker:19.03.0
+image: docker:20.10.12
 services:
-- docker:19.03.0-dind
+- docker:20.10.12-dind
 
 stages:
 - build
@@ -17,5 +17,5 @@ ueransimBuild:
       - linux
    script:
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.enricodebon.com:5000
-      - docker build -t $UERANSIM_IMAGE .
+      - docker build -t $UERANSIM_IMAGE dockerImages/UERANSIM/.
       - docker push $UERANSIM_IMAGE
