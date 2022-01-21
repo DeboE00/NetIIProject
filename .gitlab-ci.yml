@@ -1,0 +1,21 @@
+image: docker:19.03.0
+services:
+- docker:19.03.0-dind
+
+stages:
+- build
+
+variables:
+   RELASE_IMAGE: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
+   DOCKER_DRIVER: overlay2
+   DOCKER_TLS_CERTDIR: "/certs"
+
+ueransimBuild:
+   stage: build
+   tags:
+      - x64
+      - linux
+   script:
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.enricodebon.com:5000
+      - docker build -t $RELEASE_IMAGE .
+      - docker push $RELEASE_IMAGE
