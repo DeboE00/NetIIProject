@@ -6,7 +6,7 @@ stages:
 - build
 
 variables:
-   RELASE_IMAGE: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
+   UERANSIM_IMAGE: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
    DOCKER_DRIVER: overlay2
    DOCKER_TLS_CERTDIR: "/certs"
 
@@ -17,5 +17,5 @@ ueransimBuild:
       - linux
    script:
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.enricodebon.com:5000
-      - docker build -t $RELEASE_IMAGE .
-      - docker push $RELEASE_IMAGE
+      - docker build -t $UERANSIM_IMAGE .
+      - docker push $UERANSIM_IMAGE
