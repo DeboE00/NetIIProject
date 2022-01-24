@@ -1,7 +1,7 @@
 ### For reference, see `open5gs.conf`
 
 logger:
-    file: /var/log/open5gs/sgw.log
+    file: /var/log/open5gs/sgwc.log
     trace: 
         app: 1
         gtpv2: 1
@@ -10,8 +10,12 @@ logger:
 parameter:
     no_ipv6: true
 
-sgw:
+sgwc:
     gtpc:
       addr: 10.1.0.30
-    gtpu:
+    pfcp:
       addr: 10.1.0.30
+
+sgwu:
+    pfcp:
+      - addr: 10.1.0.31

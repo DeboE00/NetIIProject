@@ -110,35 +110,50 @@ services:
       open5gs_network:
         ipv4_address: 10.1.0.20
 
-  sgw:
+  sgwc:
     image: open5gs/ubuntu-bionic-open5gs-build:latest
-    container_name: sgw
-    hostname: sgw
+    container_name: sgwc
+    hostname: sgwc
     entrypoint:
      - "/bin/sh"
-     - "/etc/open5gs/run_sgw.sh"
+     - "/etc/open5gs/run_sgwc.sh"
     volumes:
      - "./open5gs_config/config:/etc/open5gs"
-     - "./open5gs_config/log/sgw:/var/log/open5gs"
+     - "./open5gs_config/log/sgwc:/var/log/open5gs"
     ports:
-      - "2152:2152"
-      - "2152:2152/udp"
       - "2123:2123"
       - "2123:2123/udp"
     networks:
       open5gs_network:
         ipv4_address: 10.1.0.30
 
-  pgw:
-    build: ./open5gs_config/pgw
-    container_name: pgw
-    hostname: pgw
+  sgwu:
+    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    container_name: sgwu
+    hostname: sgwu
     entrypoint:
      - "/bin/sh"
-     - "/etc/open5gs/run_pgw.sh"
+     - "/etc/open5gs/run_sgwu.sh"
     volumes:
      - "./open5gs_config/config:/etc/open5gs"
-     - "./open5gs_config/log/pgw:/var/log/open5gs"
+     - "./open5gs_config/log/sgwu:/var/log/open5gs"
+    ports:
+      - "2152:2152"
+      - "2152:2152/udp"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.31
+
+  upf:
+    build: ./open5gs_config/pgw
+    container_name: upf
+    hostname: upf
+    entrypoint:
+     - "/bin/sh"
+     - "/etc/open5gs/run_upf.sh"
+    volumes:
+     - "./open5gs_config/config:/etc/open5gs"
+     - "./open5gs_config/log/upf:/var/log/open5gs"
     expose:
      - "2123"
      - "2123/udp"
@@ -169,6 +184,30 @@ services:
     networks:
       open5gs_network:
         ipv4_address: 10.1.0.50
+
+  smf:
+    build: ./open5gs_config/pgw
+    container_name: smf
+    hostname: smf
+    entrypoint:
+     - "/bin/sh"
+     - "/etc/open5gs/run_smf.sh"
+    volumes:
+     - "./open5gs_config/config:/etc/open5gs"
+     - "./open5gs_config/log/smf:/var/log/open5gs"
+    expose:
+     - "2123"
+     - "2123/udp"
+     - "3868"
+     - "3868/udp"
+    cap_add:
+      -  NET_ADMIN
+    devices:
+      -  /dev/net/tun
+    privileged: true # if IPv6 enabled
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.60
   
   # UERANSIM services
 #  gnb:
