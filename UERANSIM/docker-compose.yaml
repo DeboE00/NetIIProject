@@ -1,6 +1,6 @@
 version: "3"
 networks:
-  #Open5GS network
+  # Open5GS network
   open5gs_network:
      driver: bridge
      ipam:
@@ -45,13 +45,14 @@ services:
       - DB_HOST=10.1.0.5
     volumes:
       - "./open5gs_config/provisioning/db/run_db.sh:/tmp/run.sh"
-      - "./open5gs_config/provisioning/db/imsi1.json:/tmp/imsi1.json"
+      - "./open5gs_config/provisioning/db/subscribers.json:/tmp/subscribers.json"
+      - "./open5gs_config/provisioning/db/profiles.json:/tmp/profiles.json"
     entrypoint:
       - /bin/sh
       - /tmp/run.sh
     networks:
       open5gs_network:
-        ipv4_address: 10.1.0.19
+        ipv4_address: 10.1.0.50
 
   webui:
     image: open5gs/open5gs-webui:latest
@@ -193,6 +194,138 @@ services:
     networks:
       open5gs_network:
         ipv4_address: 10.1.0.17
+  
+  upf:
+    build: ./open5gs_config/pgw
+    container_name: upf
+    hostname: upf
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_virtualNet.sh"
+      - "upf"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/upf:/var/log/open5gs"
+    cap_add:
+      -  NET_ADMIN
+    devices:
+      -  /dev/net/tun
+    privileged: true # if IPv6 enabled
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.19
+
+  smf:
+    build: ./open5gs_config/pgw
+    depends_on:
+      - nrf
+      - upf
+    container_name: smf
+    hostname: smf
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_virtualNet.sh"
+      - "smf"
+    cap_add:
+      -  NET_ADMIN
+    devices:
+      -  /dev/net/tun
+    privileged: true # if IPv6 enabled
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/config/freeDiameter:/etc/freeDiameter"
+      - "./open5gs_config/log/smf:/var/log/open5gs"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.18
+
+  pcrf:
+    image: open5gs/ubuntu-focal-open5gs-build:latest
+    depends_on:
+      - mongodb
+    container_name: pcrf
+    hostname: pcrf
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_waitMongo.sh"
+      - "pcrf"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/pcrf:/var/log/open5gs"
+      - "./open5gs_config/config/freeDiameter:/etc/freeDiameter"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.20
+
+  hss:
+    image: open5gs/ubuntu-focal-open5gs-build:latest
+    depends_on:
+      - mongodb
+    container_name: hss
+    hostname: hss
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_waitMongo.sh"
+      - "hss"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/hss:/var/log/open5gs"
+      - "./open5gs_config/config/freeDiameter:/etc/freeDiameter"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.21
+
+  sgwc:
+    image: open5gs/ubuntu-focal-open5gs-build:latest
+    depends_on:
+      - sgwu
+    container_name: sgwc
+    hostname: sgwc
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_standalone.sh"
+      - "sgwc"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/sgwc:/var/log/open5gs"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.23
+  
+  sgwu:
+    image: open5gs/ubuntu-focal-open5gs-build:latest
+    container_name: sgwu
+    hostname: sgwu
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_standalone.sh"
+      - "sgwu"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/sgwu:/var/log/open5gs"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.24
+
+  mme:
+    image: open5gs/ubuntu-focal-open5gs-build:latest
+    depends_on:
+      - smf
+      - sgwc
+    container_name: mme
+    hostname: mme
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_standalone.sh"
+      - "mme"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/mme:/var/log/open5gs"
+      - "./open5gs_config/config/freeDiameter:/etc/freeDiameter"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.22
+
 
   amf:
     image: open5gs/ubuntu-focal-open5gs-build:latest
@@ -225,7 +358,8 @@ services:
     depends_on:
       - amf
     networks:
-      - ueransim
+      ueransim:
+        ipv4_address: 10.0.0.11
     expose:
       - "38412/sctp"
       - "2152/udp"
@@ -240,7 +374,7 @@ services:
       - "./startGnb.sh:/UERANSIM/startGnb.sh:ro"
       - "./custom-gnb.yaml:/UERANSIM/custom-gnb.yaml:ro"
     command: "bash startGnb.sh"
-  ue:
+  ue1:
     image: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
     depends_on:
      - gnb
@@ -248,4 +382,13 @@ services:
       - ueransim
     volumes:
       - "./custom-ue.yaml:/UERANSIM/custom-ue.yaml:ro"
+    command: "./nr-ue -c custom-ue.yaml"
+  ue2:
+    image: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
+    depends_on:
+     - gnb
+    networks:
+      - ueransim
+    volumes:
+      - "./custom-ue.1.yaml:/UERANSIM/custom-ue.yaml:ro"
     command: "./nr-ue -c custom-ue.yaml"

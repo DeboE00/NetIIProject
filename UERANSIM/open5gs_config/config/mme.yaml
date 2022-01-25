@@ -1,0 +1,38 @@
+### For reference, see `open5gs.conf`
+
+logger:
+    file: /var/log/open5gs/mme.log
+
+parameter:
+    no_ipv6: true
+
+    freeDiameter: /etc/freeDiameter/mme.conf
+    s1ap:
+      - addr: 10.1.0.22
+    gtpc:
+      - addr: 10.1.0.22
+    gummei:
+      plmn_id:
+        mcc: 901
+        mnc: 70
+      mme_gid: 2
+      mme_code: 1
+    tai:
+      plmn_id:
+        mcc: 901
+        mnc: 70
+      tac: 1
+    security:
+        integrity_order : [ EIA2, EIA1, EIA0 ]
+        ciphering_order : [ EEA0, EEA1, EEA2 ]
+    network_name:
+        full: Open5GS
+    mme_name: open5gs-mme0
+
+sgwc:
+    gtpc:
+        addr: 10.1.0.23
+
+smf:
+    gtpc:
+        addr: 10.1.0.18

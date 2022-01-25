@@ -1,0 +1,15 @@
+### For reference, see `open5gs.conf`
+
+logger:
+    file: /var/log/open5gs/sgwu.log
+
+parameter:
+    no_ipv6: true
+
+sgwu:
+    gtpc:
+      addr: 10.1.0.24
+    pfcp:
+      addr: 10.1.0.24
+
+sgwc:

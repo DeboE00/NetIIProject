@@ -1,5 +1,5 @@
 # IMSI number of the UE. IMSI = [MCC|MNC|MSISDN] (In total 15 digits)
-supi: 'imsi-901700000000001'
+supi: 'imsi-901700000000002'
 # Mobile Country Code value of HPLMN
 mcc: '901'
 # Mobile Network Code value of HPLMN (2 or 3 digits)
@@ -14,7 +14,7 @@ opType: 'OPC'
 # Authentication Management Field (AMF) value
 amf: '8000'
 # IMEI number of the device. It is used if no SUPI is provided
-imei: '356938035643803'
+imei: '528782350324501'
 # IMEISV number of the device. It is used if no SUPI and IMEI is provided
 imeiSv: '4370816125816151'
 

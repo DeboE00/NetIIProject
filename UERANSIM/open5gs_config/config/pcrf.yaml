@@ -1,0 +1,12 @@
+### For reference, see `open5gs.conf`
+
+db_uri: mongodb://10.1.0.5/open5gs
+
+logger:
+    file: /var/log/open5gs/pcrf.log
+
+parameter:
+    no_ipv6: true
+
+pcrf:
+    freeDiameter: /etc/freeDiameter/pcrf.conf

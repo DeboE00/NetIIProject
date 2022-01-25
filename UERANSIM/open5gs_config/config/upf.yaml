@@ -1,0 +1,17 @@
+### For reference, see `open5gs.conf`
+
+logger:
+    file: /var/log/open5gs/upf.log
+
+parameter:
+    no_ipv6: true
+
+upf:
+    pfcp:
+      - addr: 10.1.0.19
+    gtpu:
+      - addr: 10.1.0.19
+    subnet:
+      - addr: 10.45.0.1/16
+
+smf:

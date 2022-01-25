@@ -4,7 +4,7 @@ echo "Launching $1..."
 
 ip tuntap add name ogstun mode tun
 sysctl -w net.ipv6.conf.ogstun.disable_ipv6=0
-ip addr add 45.45.0.1/16 dev ogstun
+ip addr add 10.45.0.1/16 dev ogstun
 ip link set ogstun up
 
 # masquerade

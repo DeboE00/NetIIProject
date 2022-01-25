@@ -21,5 +21,6 @@ fi
 echo "Waiting for " ${MONGODB_STARTUP_TIME} "s for mongodb to be ready..."
 sleep ${MONGODB_STARTUP_TIME}
 
-mongoimport --host ${DB_HOST} --db nextepc --collection subscribers --file /tmp/imsi1.json --type json  --jsonArray
+mongoimport --host ${DB_HOST} --db open5gs --collection profiles --file /tmp/profiles.json --type json
+mongoimport --host ${DB_HOST} --db open5gs --collection subscribers --file /tmp/subscribers.json --type json
 sleep infinity
