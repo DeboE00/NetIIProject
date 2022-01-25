@@ -26,8 +26,5 @@ smf:
       - addr: ::1
     subnet:
       - addr: 45.45.0.1/16
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
     mtu: 1400
     freeDiameter: /etc/open5gs/freeDiameter/smf.conf

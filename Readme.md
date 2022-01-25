@@ -21,6 +21,14 @@ cd UERANSIM
 docker-compose up
 ```
 
+### More complex issues
+In case you want to generate new TLS certificates for the various components, you would run
+```bash
+cd UERANSIM/open5gs_config/config/freeDiameter
+bash genCerts.sh
+# Follow the various prompts
+```
+
 ## Folder structure
 - `dockerImages`: Folder containing the various docker images used for the project;
 - `dockerImages/UERANSIM`: Docker image for UERANSIM;
