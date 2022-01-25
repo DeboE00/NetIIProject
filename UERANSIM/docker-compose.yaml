@@ -58,7 +58,7 @@ services:
     depends_on:
       - mongodb
     environment:
-      - db_URI=mongodb://10.1.0.5/open5gs
+      - DB_URI=mongodb://10.1.0.5/open5gs
     container_name: webui
     hostname: webui
     ports:
