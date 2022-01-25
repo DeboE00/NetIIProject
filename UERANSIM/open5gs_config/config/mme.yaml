@@ -6,6 +6,7 @@ logger:
 parameter:
     no_ipv6: true
 
+mme:
     freeDiameter: /etc/freeDiameter/mme.conf
     s1ap:
       - addr: 10.1.0.22

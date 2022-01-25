@@ -7,7 +7,7 @@ parameter:
     no_ipv6: true
 
 sgwu:
-    gtpc:
+    gtpu:
       addr: 10.1.0.24
     pfcp:
       addr: 10.1.0.24
