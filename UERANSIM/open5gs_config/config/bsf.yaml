@@ -3,7 +3,7 @@
 db_uri: mongodb://10.1.0.5/open5gs
 
 logger:
-    file: /var/log/open5gs/pcrf.log
+    file: /var/log/open5gs/bsf.log
     trace: 
         app: 1
         diameter: 1
@@ -11,5 +11,12 @@ logger:
 parameter:
     no_ipv6: true
 
-pcrf:
-    freeDiameter: /etc/open5gs/freeDiameter/pcrf.conf
+bsf:
+    sbi:
+      - addr: 10.1.0.16
+        port: 7777
+
+nrf:
+    sbi:
+      - addr: 10.1.0.10
+        port: 7777

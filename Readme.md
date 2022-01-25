@@ -24,14 +24,6 @@ docker-compose up
 ### Access the open5gs web terminal
 Just launch your browser, go to `localhost:3000` and login with username `admin` and password `1423`. 
 
-### More complex issues
-In case you want to generate new TLS certificates for the various components, you would run
-```bash
-cd UERANSIM/open5gs_config/config/freeDiameter
-bash genCerts.sh
-# Follow the various prompts
-```
-
 ## Folder structure
 - `dockerImages`: Folder containing the various docker images used for the project;
 - `dockerImages/UERANSIM`: Docker image for UERANSIM;

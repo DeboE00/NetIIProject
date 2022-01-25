@@ -27,7 +27,7 @@ volumes:
     
      
 services:
-  # Open5GS services
+  # MongoDB services for Open5GS
   mongodb:
     image: mongo:latest
     volumes:
@@ -71,33 +71,139 @@ services:
     networks:
       open5gs_network:
         ipv4_address: 10.1.0.6
-    
-  hss:
+  # Open5GS services
+  nrf:
     image: open5gs/ubuntu-bionic-open5gs-build:latest
     depends_on:
       - mongodb
-    container_name: hss
-    hostname: hss
+    container_name: nrf
+    hostname: nrf
     entrypoint:
       - "/bin/sh"
-      - "/etc/open5gs/run_hss.sh"
+      - "/etc/open5gs/run_waitMongo.sh"
+      - "nrf"
     volumes:
       - "./open5gs_config/config:/etc/open5gs"
-      - "./open5gs_config/log/hss:/var/log/open5gs"
+      - "./open5gs_config/log/nrf:/var/log/open5gs"
     networks:
       open5gs_network:
         ipv4_address: 10.1.0.10
 
-  mme:
+  ausf:
     image: open5gs/ubuntu-bionic-open5gs-build:latest
     depends_on:
-      - upf
-      - sgwc
-    container_name: mme
-    hostname: mme
+      - nrf
+    container_name: ausf
+    hostname: ausf
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_standalone.sh"
+      - "ausf"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/ausf:/var/log/open5gs"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.12
+  
+  udm:
+    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    depends_on:
+      - nrf
+    container_name: udm
+    hostname: udm
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_standalone.sh"
+      - "udm"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/udm:/var/log/open5gs"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.13
+  
+  pcf:
+      image: open5gs/ubuntu-bionic-open5gs-build:latest
+      depends_on:
+        - mongodb
+        - nrf
+      container_name: pcf
+      hostname: pcf
+      entrypoint:
+        - "/bin/sh"
+        - "/etc/open5gs/run_waitMongo.sh"
+        - "pcf"
+      volumes:
+        - "./open5gs_config/config:/etc/open5gs"
+        - "./open5gs_config/log/pcf:/var/log/open5gs"
+      networks:
+        open5gs_network:
+          ipv4_address: 10.1.0.14
+
+  nssf:
+    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    depends_on:
+      - nrf
+    container_name: nssf
+    hostname: nssf
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_standalone.sh"
+      - "nssf"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/nssf:/var/log/open5gs"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.15
+  
+  bsf:
+    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    depends_on:
+      - mongodb
+      - nrf
+    container_name: bsf
+    hostname: bsf
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_waitMongo.sh"
+      - "bsf"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/bsf:/var/log/open5gs"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.16
+
+  udr:
+    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    depends_on:
+      - mongodb
+      - nrf
+    container_name: udr
+    hostname: udr
+    entrypoint:
+      - "/bin/sh"
+      - "/etc/open5gs/run_waitMongo.sh"
+      - "udr"
+    volumes:
+      - "./open5gs_config/config:/etc/open5gs"
+      - "./open5gs_config/log/udr:/var/log/open5gs"
+    networks:
+      open5gs_network:
+        ipv4_address: 10.1.0.17
+
+  amf:
+    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    depends_on:
+      - nrf
+    container_name: amf
+    hostname: amf
     entrypoint:
      - "/bin/sh"
-     - "/etc/open5gs/run_mme.sh"
+     - "/etc/open5gs/run_standalone.sh"
+     - "amf"
     ports:
      - "36412:36412"
      - "36412:36412/udp"
@@ -106,122 +212,18 @@ services:
      - "2123/udp"
     volumes:
      - "./open5gs_config/config:/etc/open5gs"
-     - "./open5gs_config/log/mme:/var/log/open5gs"
+     - "./open5gs_config/log/amf:/var/log/open5gs"
     networks:
       open5gs_network:
-        ipv4_address: 10.1.0.20
+        ipv4_address: 10.1.0.11
       ueransim:
         ipv4_address: 10.0.0.4
 
-  sgwc:
-    image: open5gs/ubuntu-bionic-open5gs-build:latest
-    depends_on:
-     - upf
-     - sgwu
-    container_name: sgwc
-    hostname: sgwc
-    entrypoint:
-     - "/bin/sh"
-     - "/etc/open5gs/run_sgwc.sh"
-    volumes:
-     - "./open5gs_config/config:/etc/open5gs"
-     - "./open5gs_config/log/sgwc:/var/log/open5gs"
-    ports:
-      - "2123:2123"
-      - "2123:2123/udp"
-    networks:
-      open5gs_network:
-        ipv4_address: 10.1.0.30
-
-  sgwu:
-    image: open5gs/ubuntu-bionic-open5gs-build:latest
-    container_name: sgwu
-    hostname: sgwu
-    entrypoint:
-     - "/bin/sh"
-     - "/etc/open5gs/run_sgwu.sh"
-    volumes:
-     - "./open5gs_config/config:/etc/open5gs"
-     - "./open5gs_config/log/sgwu:/var/log/open5gs"
-    ports:
-      - "2152:2152"
-      - "2152:2152/udp"
-    networks:
-      open5gs_network:
-        ipv4_address: 10.1.0.31
-
-  upf:
-    build: ./open5gs_config/pgw
-    container_name: upf
-    hostname: upf
-    entrypoint:
-     - "/bin/sh"
-     - "/etc/open5gs/run_upf.sh"
-    volumes:
-     - "./open5gs_config/config:/etc/open5gs"
-     - "./open5gs_config/log/upf:/var/log/open5gs"
-    expose:
-     - "2123"
-     - "2123/udp"
-     - "2152"
-     - "2152/udp"
-    cap_add:
-      -  NET_ADMIN
-    devices:
-      -  /dev/net/tun
-    privileged: true # if IPv6 enabled
-    networks:
-      open5gs_network:
-        ipv4_address: 10.1.0.40
-
-  pcrf:
-    image: open5gs/ubuntu-bionic-open5gs-build:latest
-    depends_on:
-      - mongodb
-      - hss
-    container_name: pcrf
-    hostname: pcrf
-    entrypoint:
-      - "/bin/sh"
-      - "/etc/open5gs/run_pcrf.sh"
-    volumes:
-      - "./open5gs_config/config:/etc/open5gs"
-      - "./open5gs_config/log/pcrf:/var/log/open5gs"
-    networks:
-      open5gs_network:
-        ipv4_address: 10.1.0.50
-
-  smf:
-    build: ./open5gs_config/pgw
-    depends_on:
-     - upf
-    container_name: smf
-    hostname: smf
-    entrypoint:
-     - "/bin/sh"
-     - "/etc/open5gs/run_smf.sh"
-    volumes:
-     - "./open5gs_config/config:/etc/open5gs"
-     - "./open5gs_config/log/smf:/var/log/open5gs"
-    expose:
-     - "2123"
-     - "2123/udp"
-     - "3868"
-     - "3868/udp"
-    cap_add:
-      -  NET_ADMIN
-    devices:
-      -  /dev/net/tun
-    privileged: true # if IPv6 enabled
-    networks:
-      open5gs_network:
-        ipv4_address: 10.1.0.60
-  
   # UERANSIM services
   gnb:
     image: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
     depends_on:
-     - mme
+      - amf
     networks:
       - ueransim
     expose:
