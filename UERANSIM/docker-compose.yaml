@@ -73,7 +73,7 @@ services:
         ipv4_address: 10.1.0.6
   # Open5GS services
   nrf:
-    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    image: open5gs/ubuntu-focal-open5gs-build:latest
     depends_on:
       - mongodb
     container_name: nrf
@@ -90,7 +90,7 @@ services:
         ipv4_address: 10.1.0.10
 
   ausf:
-    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    image: open5gs/ubuntu-focal-open5gs-build:latest
     depends_on:
       - nrf
     container_name: ausf
@@ -107,7 +107,7 @@ services:
         ipv4_address: 10.1.0.12
   
   udm:
-    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    image: open5gs/ubuntu-focal-open5gs-build:latest
     depends_on:
       - nrf
     container_name: udm
@@ -124,7 +124,7 @@ services:
         ipv4_address: 10.1.0.13
   
   pcf:
-      image: open5gs/ubuntu-bionic-open5gs-build:latest
+      image: open5gs/ubuntu-focal-open5gs-build:latest
       depends_on:
         - mongodb
         - nrf
@@ -142,7 +142,7 @@ services:
           ipv4_address: 10.1.0.14
 
   nssf:
-    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    image: open5gs/ubuntu-focal-open5gs-build:latest
     depends_on:
       - nrf
     container_name: nssf
@@ -159,7 +159,7 @@ services:
         ipv4_address: 10.1.0.15
   
   bsf:
-    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    image: open5gs/ubuntu-focal-open5gs-build:latest
     depends_on:
       - mongodb
       - nrf
@@ -177,7 +177,7 @@ services:
         ipv4_address: 10.1.0.16
 
   udr:
-    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    image: open5gs/ubuntu-focal-open5gs-build:latest
     depends_on:
       - mongodb
       - nrf
@@ -195,7 +195,7 @@ services:
         ipv4_address: 10.1.0.17
 
   amf:
-    image: open5gs/ubuntu-bionic-open5gs-build:latest
+    image: open5gs/ubuntu-focal-open5gs-build:latest
     depends_on:
       - nrf
     container_name: amf
