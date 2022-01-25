@@ -91,7 +91,8 @@ services:
   mme:
     image: open5gs/ubuntu-bionic-open5gs-build:latest
     depends_on:
-      - hss
+      - upf
+      - sgwc
     container_name: mme
     hostname: mme
     entrypoint:
@@ -109,9 +110,14 @@ services:
     networks:
       open5gs_network:
         ipv4_address: 10.1.0.20
+      ueransim:
+        ipv4_address: 10.0.0.4
 
   sgwc:
     image: open5gs/ubuntu-bionic-open5gs-build:latest
+    depends_on:
+     - upf
+     - sgwu
     container_name: sgwc
     hostname: sgwc
     entrypoint:
@@ -187,6 +193,8 @@ services:
 
   smf:
     build: ./open5gs_config/pgw
+    depends_on:
+     - upf
     container_name: smf
     hostname: smf
     entrypoint:
@@ -210,28 +218,32 @@ services:
         ipv4_address: 10.1.0.60
   
   # UERANSIM services
-#  gnb:
-#     image: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
-#     networks:
-#       - ueransim
-#     expose:
-#       - "38412/sctp"
-#       - "2152/udp"
-#     cap_add:
-#       - NET_ADMIN
-#     devices:
-#       - "/dev/net/tun"
-#     privileged: true
-#     stdin_open: true
-#     tty: true
-#     volumes:
-#       - "./startGnb.sh:/UERANSIM/startGnb.sh:ro"
-#       - "./custom-gnb.yaml:/UERANSIM/custom-gnb.yaml:ro"
-#     command: "bash startGnb.sh"
-#  ue:
-#     image: registry.enricodebon.com:5000/university/networking-#ii-2022-2021/project:ueransim
-#     networks:
-#       - ueransim
-#     volumes:
-#       - "./custom-ue.yaml:/UERANSIM/custom-ue.yaml:ro"
-#     command: "./nr-ue -c custom-ue.yaml"
+  gnb:
+    image: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
+    depends_on:
+     - mme
+    networks:
+      - ueransim
+    expose:
+      - "38412/sctp"
+      - "2152/udp"
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - "/dev/net/tun"
+    privileged: true
+    stdin_open: true
+    tty: true
+    volumes:
+      - "./startGnb.sh:/UERANSIM/startGnb.sh:ro"
+      - "./custom-gnb.yaml:/UERANSIM/custom-gnb.yaml:ro"
+    command: "bash startGnb.sh"
+  ue:
+    image: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
+    depends_on:
+     - gnb
+    networks:
+      - ueransim
+    volumes:
+      - "./custom-ue.yaml:/UERANSIM/custom-ue.yaml:ro"
+    command: "./nr-ue -c custom-ue.yaml"
