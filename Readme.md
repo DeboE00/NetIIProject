@@ -19,6 +19,15 @@ bash setup.sh
 ```bash
 cd UERANSIM
 docker-compose up
+sudo bash hostScripts/fix_IPTables.sh
+```
+
+### Test network speed
+In order to test the UE network speed, enter inside the container, and run the following commands:
+```bash
+ip route del default
+ip route add default via 10.45.0.1 dev uesimtun0
+ip route add 10.45.0.0/16 dev uesimtun0
 ```
 
 ### Access the open5gs web terminal
