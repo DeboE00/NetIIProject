@@ -19,3 +19,6 @@ ueransimBuild:
       - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.enricodebon.com:5000
       - docker build -t $UERANSIM_IMAGE dockerImages/UERANSIM/.
       - docker push $UERANSIM_IMAGE
+   only:
+    refs:
+      - master

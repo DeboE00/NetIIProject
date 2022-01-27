@@ -27,4 +27,5 @@ Just launch your browser, go to `localhost:3000` and login with username `admin`
 ## Folder structure
 - `dockerImages`: Folder containing the various docker images used for the project;
 - `dockerImages/UERANSIM`: Docker image for UERANSIM;
+- `hostScripts`: Folder containing some scripts that have to be run on the host;
 - `UERANSIM`: Folder containing all the configurations for UERANSIM.
