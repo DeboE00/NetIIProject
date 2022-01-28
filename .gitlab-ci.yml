@@ -7,6 +7,7 @@ stages:
 
 variables:
    UERANSIM_IMAGE: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
+   MONGODB_IMAGE: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:mongodb
    DOCKER_DRIVER: overlay2
    DOCKER_TLS_CERTDIR: "/certs"
 
@@ -22,3 +23,17 @@ ueransimBuild:
    only:
     refs:
       - master
+
+mongoBuild:
+   stage: build
+   tags:
+      - x64
+      - linux
+   script:
+      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.enricodebon.com:5000
+      - docker build -t $MONGODB_IMAGE dockerImages/Mongodb/.
+      - docker push $MONGODB_IMAGE
+   only:
+    refs:
+      - master
+
