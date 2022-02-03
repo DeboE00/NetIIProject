@@ -13,13 +13,20 @@ The integration can be performed by dockerinzing the new components, or connecti
 - `docker-compose`
 ### Installation of the necessary files
 ```bash
-bash setup.sh
+sudo bash setup.sh
 ```
-### Start up
+### Start up (without Comnetsemu)
 ```bash
 cd UERANSIM
 docker-compose up
 sudo bash hostScripts/fix_IPTables.sh
+```
+
+### Start up (within Comnetsemu)
+```bash
+sudo bash setup.sh
+cd comnetsemu
+sudo python3 network.py
 ```
 
 ### Test network speed

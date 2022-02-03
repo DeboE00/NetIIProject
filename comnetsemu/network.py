@@ -8,6 +8,7 @@ About: Simple network topology with all the host running
 """
 
 import argparse
+import time
 
 from comnetsemu.clean import cleanup
 from comnetsemu.cli import CLI, spawnXtermDocker
@@ -24,9 +25,9 @@ def initialize5GNet(interactive):
 
     try:
         info("*** Adding Open5G components\n")
-        info("*** \tMongoDB server\n")
+        info("*** \t[MongoDB]\tserver\n")
         mongoDb = net.addDockerHost("mongodb",
-                                    dimage="registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:mongodb",
+                                    dimage="project:mongodb",
                                     ip="10.1.0.5/24",
                                     docker_args={
                                         "volumes": {
@@ -44,344 +45,375 @@ def initialize5GNet(interactive):
                                             }
                                         }
                                     })
+
+        info("*** \t[MongoDB]\tloader\n")
         mongoDbLoader = net.addDockerHost("mongodbloader",
-                                    dimage="mongo:latest",
+                                    dimage="project:mongodb",
                                     ip="10.1.0.50/24",
                                     docker_args={                                        
                                         #"environment": {
                                         #    "DB_HOST=10.1.0.5"
                                         #},
                                         "volumes": {
-                                            bind_dir + "/open5gs_config/provisioning/db": {
-                                                "bind": "/run_db.sh:/tmp/run.sh",
+                                            bind_dir + "/open5gs_config/provisioning/db/run_db.sh": {
+                                                "bind": "/tmp/run.sh",
                                                 "mode": "ro",
                                             },
-                                            bind_dir + "/open5gs_config/provisioning/db": {
-                                                "bind": "/subscribers.json:/tmp/subscribers.json",
+                                            bind_dir + "/open5gs_config/provisioning/db/subscribers.json": {
+                                                "bind": "/tmp/subscribers.json",
                                                 "mode": "ro",
                                             },
-                                            bind_dir + "/open5gs_config/provisioning/db": {
-                                                "bind": "/profiles.json:/tmp/profiles.json",
+                                            bind_dir + "/open5gs_config/provisioning/db/profiles.json": {
+                                                "bind": "/tmp/profiles.json",
                                                 "mode": "ro",
                                             }
                                         }
                                     })
+
+        info("*** \t[Open5GS]\tWebUI\n")
         webui = net.addDockerHost("webui",
-                                dimage="open5gs/open5gs-webui:latest",
+                                dimage="project:open5gsWebWtools",
                                 ip="10.1.0.6/24",
                                 docker_args={                                    
-                                        #"environment": {
-                                        #    "DB_URI=mongodb://10.1.0.5/open5gs"
-                                        #},                                        
-                                        "ports": {
-                                            "3000:3000"
-                                        },
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro",
-                                            }
+                                    #"environment": {
+                                    #    "DB_URI=mongodb://10.1.0.5/open5gs"
+                                    #},                                        
+                                    "ports": {
+                                        "3000": 3000
+                                    },
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro",
                                         }
-                                    })
+                                    }
+                                })
+        
+        info("*** \t[Open5GS]\tnrf\n")
         nrf = net.addDockerHost("nrf",
-                                dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.10/24",
                                 docker_args={                                                                           
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/nrf:/var/log/open5gs",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/nrf": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
                                         }
-                                    })
+                                    }
+                                })
+
+        info("*** \t[Open5GS]\tausf\n")
         ausf = net.addDockerHost("ausf",
-                                dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.12/24",
                                 docker_args={                                                                           
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/ausf:/var/log/open5gs",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/ausf": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
                                         }
-                                    })
+                                    }
+                                })
+                                
+        info("*** \t[Open5GS]\tudm\n")
         udm = net.addDockerHost("udm",
-                                dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.13/24",
                                 docker_args={                                                                        
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/udm:/var/log/open5gs",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/udm": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
                                         }
-                                    })
+                                    }
+                                })
+
+        info("*** \t[Open5GS]\tpcf\n")
         pcf = net.addDockerHost("pcf",
-                                dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.14/24",
                                 docker_args={                                                                           
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/pcf:/var/log/open5gs",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/pcf": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
                                         }
-                                    })
+                                    }
+                                })
+
+        info("*** \t[Open5GS]\tnssf\n")
         nssf = net.addDockerHost("nssf",
-                                dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.15/24",
                                 docker_args={                                                                         
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/nssf:/var/log/open5gs",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/nssf": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
                                         }
-                                    })
+                                    }
+                                })
+
+        info("*** \t[Open5GS]\tbsf\n")
         bsf = net.addDockerHost("bsf",
-                                dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.16/24",
                                 docker_args={                                                                          
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/bsf:/var/log/open5gs",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/bsf": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
                                         }
-                                    })
+                                    }
+                                })
+
+        info("*** \t[Open5GS]\tudr\n")
         udr = net.addDockerHost("udr",
-                                dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.17/24",
                                 docker_args={                                                                         
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/udr:/var/log/open5gs",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/udr": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
                                         }
-                                    })
+                                    }
+                                })
+
+        info("*** \t[Open5GS]\tupf\n")
         upf = net.addDockerHost("upf",
-                                #TODO:ADD IMAGE
-                                dimage="open5gs/ubuntu-focal-open5gs-build:latest",
-                                #build="./open5gs_config/pgw",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.19/24",
                                 docker_args={                                                                             
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/upf:/var/log/open5gs",
-                                                "mode": "rw"
-                                            }
-                                        },                                        
-                                        "cap_add": [
-                                            "NET_ADMIN"
-                                        ],
-                                        "devices": "/dev/net/tun:/dev/net/tun:rwm"                                        
-                                    })
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/upf": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
+                                        }
+                                    },                                        
+                                    "cap_add": [
+                                        "NET_ADMIN"
+                                    ],
+                                    "devices": "/dev/net/tun:/dev/net/tun:rwm"                                        
+                                })
+
+        info("*** \t[Open5GS]\tsmf\n")
         smf = net.addDockerHost("smf",
-                                #TODO:ADD IMAGE
-                                #build="./open5gs_config/pgw",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.18/24",
                                 docker_args={                                                                           
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/smf:/var/log/open5gs",
-                                                "mode": "rw"
-                                            },
-                                            bind_dir + "/open5gs_config/config": {
-                                                "bind": "/freeDiameter:/etc/freeDiameter",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/smf": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
+                                        },
+                                        bind_dir + "/open5gs_config/config/freeDiameter": {
+                                            "bind": "/etc/freeDiameter",
+                                            "mode": "ro"
                                         }
-                                    })
+                                    }
+                                })
+
+        info("*** \t[Open5GS]\tpcrf\n")
         pcrf = net.addDockerHost("pcrf",
-                                #TODO:ADD IMAGE
-                                #dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.20/24",
                                 docker_args={                                                                            
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/pcrf:/var/log/open5gs",
-                                                "mode": "rw"
-                                            },
-                                            bind_dir + "/open5gs_config/config": {
-                                                "bind": "/freeDiameter:/etc/freeDiameter",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/pcrf": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
+                                        },
+                                        bind_dir + "/open5gs_config/config/freeDiameter": {
+                                            "bind": "/etc/freeDiameter",
+                                            "mode": "ro"
                                         }
-                                    })
+                                    }
+                                })
+        
+        info("*** \t[Open5GS]\thss\n")
         hss = net.addDockerHost("hss",
-                                #TODO:ADD IMAGE
-                                #dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.21/24",
                                 docker_args={                                     
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/hss:/var/log/open5gs",
-                                                "mode": "rw"
-                                            },
-                                            bind_dir + "/open5gs_config/config": {
-                                                "bind": "/freeDiameter:/etc/freeDiameter",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/hss": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
+                                        },
+                                        bind_dir + "/open5gs_config/config/freeDiameter": {
+                                            "bind": "/etc/freeDiameter",
+                                            "mode": "ro"
                                         }
-                                    })
+                                    }
+                                })
+
+        info("*** \t[Open5GS]\tsgwc\n")
         sgwc = net.addDockerHost("sgwc",
-                                #TODO: ADD IMAGE
-                                #dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.23/24",
                                 docker_args={                                      
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/sgwc:/var/log/open5gs",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/sgwc": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
                                         }
-                                    })
+                                    }
+                                })
+
+        info("*** \t[Open5GS]\tsgwu\n")
         sgwu = net.addDockerHost("sgwu",
-                                #TODO:ADD IMAGE
-                                #dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.24/24",
                                 docker_args={                                       
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/sgwu:/var/log/open5gs",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/sgwu": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
                                         }
-                                    })
+                                    }
+                                })
+
+        info("*** \t[Open5GS]\tmme\n")
         mme = net.addDockerHost("mme",
-                                #TODO:ADD IMAGE
-                                #dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.22/24",
                                 docker_args={                                       
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/mme:/var/log/open5gs",
-                                                "mode": "rw"
-                                            },
-                                            bind_dir + "/open5gs_config/config": {
-                                                "bind": "/freeDiameter:/etc/freeDiameter",
-                                                "mode": "rw"
-                                            }
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/mme": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
+                                        },
+                                        bind_dir + "/open5gs_config/config/freeDiameter": {
+                                            "bind": "/etc/freeDiameter",
+                                            "mode": "ro"
                                         }
-                                    })
+                                    }
+                                })
+
+        info("*** \t[Open5GS]\tamf\n")
         amf = net.addDockerHost("amf",
                                 #TODO:ADD IMAGE, fix 2 IPs thing
-                                #dimage="open5gs/ubuntu-focal-open5gs-build:latest",
+                                dimage="project:open5gsWtools",
                                 ip="10.1.0.11/24",
                                 docker_args={
-                                        "ports": {
-                                            "36412:36412",
-                                            "36412:36412/udp",
-                                            "2123",
-                                            "2123/udp"
-                                        },                                       
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config": {
-                                                "bind": "/config:/etc/open5gs",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/open5gs_config/log": {
-                                                "bind": "/amf:/var/log/open5gs",
-                                                "mode": "rw"
-                                            }
+                                    "ports": {
+                                        "36412":36412,
+                                        "36412/udp":36412,
+                                        "2123":2123,
+                                        "2123/udp":2123
+                                    },                                       
+                                    "volumes": {
+                                        bind_dir + "/open5gs_config/config": {
+                                            "bind": "/etc/open5gs",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/amf": {
+                                            "bind": "/var/log/open5gs",
+                                            "mode": "rw"
                                         }
-                                    })
-    #UERANSIM SERVICES
+                                    }
+                                })
+        #UERANSIM SERVICES
+        info("*** Adding UERANSIM components\n")
+        info("*** \t[UERANSIM]\tgnb\n")
         gnb = net.addDockerHost("gnb",
-                                dimage="registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim",
+                                dimage="project:ueransim",
                                 ip="10.0.0.11/24",
                                 docker_args={
-                                        "ports": {
-                                            "38412:38412/sctp",
-                                            "2152:2152/udp"
+                                    "ports": {
+                                        "38412/sctp":38412,
+                                        "2152/udp":2152
+                                    },
+                                    "cap_add": [
+                                        "NET_ADMIN"
+                                    ],
+                                    "devices": "/dev/net/tun:/dev/net/tun:rwm",                                       
+                                    "volumes": {
+                                        bind_dir + "/startGnb.sh": {
+                                            "bind": "/UERANSIM/startGnb.sh",
+                                            "mode": "ro"
                                         },
-                                        "cap add": [
-                                            "NET_ADMIN"
-                                        ],
-                                        "devices": "/dev/net/tun:/dev/net/tun:rwm",                                       
-                                        "volumes": {
-                                            bind_dir + "/startGnb.sh": {
-                                                "bind": "/UERANSIM/startGnb.sh",
-                                                "mode": "ro"
-                                            },
-                                            bind_dir + "/custom-gnb.yaml": {
-                                                "bind": "/UERANSIM/custom-gnb.yaml",
-                                                "mode": "ro"
-                                            }
+                                        bind_dir + "/custom-gnb.yaml": {
+                                            "bind": "/UERANSIM/custom-gnb.yaml",
+                                            "mode": "ro"
                                         }
-                                    })
+                                    }
+                                })
+
+        info("*** \t[UERANSIM]\tue1\n")
         ue1 = net.addDockerHost("ue1",
-                                dimage="registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim",
+                                dimage="project:ueransim",
                                 ip="10.0.0.25/24",
                                 docker_args={                                       
-                                        "cap_add": [
-                                            "NET_ADMIN"
-                                        ],
-                                        "devices": "/dev/net/tun:/dev/net/tun:rwm",                                                                                                                      
-                                        "volumes": {
-                                            bind_dir + "/custom-ue.yaml": {
-                                                "bind": "/UERANSIM/custom-ue.yaml",
-                                                "mode": "ro"
-                                            }
-                                        }                                      
-                                    })                   
+                                    "cap_add": [
+                                        "NET_ADMIN"
+                                    ],
+                                    "devices": "/dev/net/tun:/dev/net/tun:rwm",                                                                                                                      
+                                    "volumes": {
+                                        bind_dir + "/custom-ue.yaml": {
+                                            "bind": "/UERANSIM/custom-ue.yaml",
+                                            "mode": "ro"
+                                        }
+                                    }                                      
+                                })
+
         info("*** Adding controller\n")
         net.addController("c0")
 
@@ -391,6 +423,27 @@ def initialize5GNet(interactive):
 
         info("*** Adding links\n")
         net.addLink(mongoDb, sOpen, bw=1000, delay="1ms", intfName1="mongoDb1-s1", intfName2="s1-mongoDb1")
+        net.addLink(mongoDbLoader, sOpen, bw=1000, delay="1ms", intfName1="mongoDbL1-s1", intfName2="s1-mongoDbL1")
+        net.addLink(webui, sOpen, bw=1000, delay="1ms", intfName1="webui1-s1", intfName2="s1-webui1")
+        net.addLink(nrf, sOpen, bw=1000, delay="1ms", intfName1="nrf1-s1", intfName2="s1-nrf1")
+        net.addLink(ausf, sOpen, bw=1000, delay="1ms", intfName1="ausf1-s1", intfName2="s1-ausf1")
+        net.addLink(udm, sOpen, bw=1000, delay="1ms", intfName1="udm1-s1", intfName2="s1-udm1")
+        net.addLink(pcf, sOpen, bw=1000, delay="1ms", intfName1="pcf1-s1", intfName2="s1-pcf1")
+        net.addLink(nssf, sOpen, bw=1000, delay="1ms", intfName1="nssf1-s1", intfName2="s1-nssf1")
+        net.addLink(bsf, sOpen, bw=1000, delay="1ms", intfName1="bsf1-s1", intfName2="s1-bsf1")
+        net.addLink(udr, sOpen, bw=1000, delay="1ms", intfName1="udr1-s1", intfName2="s1-udr1")
+        net.addLink(upf, sOpen, bw=1000, delay="1ms", intfName1="upf1-s1", intfName2="s1-upf1")
+        net.addLink(smf, sOpen, bw=1000, delay="1ms", intfName1="smf1-s1", intfName2="s1-smf1")
+        net.addLink(pcrf, sOpen, bw=1000, delay="1ms", intfName1="pcrf1-s1", intfName2="s1-pcrf1")
+        net.addLink(hss, sOpen, bw=1000, delay="1ms", intfName1="hss1-s1", intfName2="s1-hss1")
+        net.addLink(sgwc, sOpen, bw=1000, delay="1ms", intfName1="sgwc1-s1", intfName2="s1-sgwc1")
+        net.addLink(sgwu, sOpen, bw=1000, delay="1ms", intfName1="sgwu1-s1", intfName2="s1-sgwu1")
+        net.addLink(mme, sOpen, bw=1000, delay="1ms", intfName1="mme1-s1", intfName2="s1-mme1")
+        # TODO: Connect to both networks
+        net.addLink(amf, sOpen, bw=1000, delay="1ms", intfName1="amf1-s1", intfName2="s1-amf1")        
+        
+        net.addLink(gnb, sUeransim, bw=1000, delay="1ms", intfName1="gnb1-s2", intfName2="s2-gnb1")
+        net.addLink(ue1, sUeransim, bw=1000, delay="1ms", intfName1="ue1-s2", intfName2="s2-ue1")
 
         info("*** Starting network\n")
         net.start()
@@ -398,9 +451,90 @@ def initialize5GNet(interactive):
 
         if interactive:
             spawnXtermDocker("mongoDb")
+            spawnXtermDocker("mongoDbLoader")
+            spawnXtermDocker("webui")
+            spawnXtermDocker("nrf")
+            spawnXtermDocker("ausf")
+            spawnXtermDocker("udm")
+            spawnXtermDocker("pcf")
+            spawnXtermDocker("nssf")
+            spawnXtermDocker("bsf")
+            spawnXtermDocker("udr")
+            spawnXtermDocker("upf")
+            spawnXtermDocker("smf")
+            spawnXtermDocker("pcrf")
+            spawnXtermDocker("hss")
+            spawnXtermDocker("sgwc")
+            spawnXtermDocker("sgwu")
+            spawnXtermDocker("mme")
+            spawnXtermDocker("amf")
+            spawnXtermDocker("gnb")
+            spawnXtermDocker("ue1")
 
             CLI(net)
         else:
+            info("*** Importing mongodb database\n")
+            mongoDbLoader.sendCmd("/bin/sh /tmp/run.sh")
+            
+            info("*** Starting webui...\n")
+            webui.sendCmd("/bin/sh /etc/open5gs/run_webui.sh")
+
+            info("*** Starting nrf...\n")
+            nrf.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh nrf")
+            time.sleep(5)
+            
+            info("*** Starting ausf...\n")
+            ausf.sendCmd("/bin/sh /etc/open5gs/run_standalone.sh ausf")
+
+            info("*** Starting udm...\n")
+            udm.sendCmd("/bin/sh /etc/open5gs/run_standalone.sh udm")
+
+            info("*** Starting pcf...\n")
+            pcf.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh pcf")
+
+            info("*** Starting nssf...\n")
+            nssf.sendCmd("/bin/sh /etc/open5gs/run_standalone.sh nssf")
+
+            info("*** Starting bsf...\n")
+            bsf.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh bsf")
+
+            info("*** Starting udr...\n")
+            udr.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh udr")
+
+            info("*** Starting upf...\n")
+            upf.sendCmd("/bin/sh /etc/open5gs/run_virtualNet.sh upf")
+            time.sleep(5)
+
+            info("*** Starting smf...\n")
+            smf.sendCmd("/bin/sh /etc/open5gs/run_virtualNet.sh smf")
+            time.sleep(5)
+
+            info("*** Starting pcrf...\n")
+            pcrf.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh pcrf")
+
+            info("*** Starting hss...\n")
+            hss.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh hss")
+
+            info("*** Starting sgwc...\n")
+            sgwc.sendCmd("/bin/sh /etc/open5gs/run_standalone.sh sgwc")
+            time.sleep(5)
+
+            info("*** Starting sgwu...\n")
+            sgwu.sendCmd("/bin/sh /etc/open5gs/run_standalone.sh sgwu")
+
+            info("*** Starting mme...\n")
+            mme.sendCmd("/bin/sh /etc/open5gs/run_standalone.sh mme")
+
+            info("*** Starting amf...\n")
+            amf.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh amf")
+            time.sleep(5)
+
+            info("*** Starting the gnb...\n")
+            gnb.sendCmd("bash startGnb.sh")
+
+            info("*** Starting the UE...\n")
+            ue1.sendCmd("./nr-ue -c custom-ue.yaml")
+
             input("Emulation setup ready. Press enter to terminate")
     
     except Exception as e:
