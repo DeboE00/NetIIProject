@@ -12,15 +12,13 @@ import time
 
 from comnetsemu.clean import cleanup
 from comnetsemu.cli import CLI, spawnXtermDocker
-from comnetsemu.net import Containernet, VNFManager
+from comnetsemu.net import Containernet
 from mininet.link import TCLink
 from mininet.log import error, info, setLogLevel
 from mininet.node import Controller
 
 def initialize5GNet(interactive):
-    bind_dir = "/home/vagrant"
-    parent_dir = "/home/vagrant/comnetsemu/comnetsemu_open5gs"
-
+    bind_dir = "/home/vagrant/comnetsemu/app/network2_project/UERANSIM"
     net = Containernet(controller=Controller, link=TCLink)
 
     try:
@@ -46,38 +44,38 @@ def initialize5GNet(interactive):
                                         }
                                     })
 
-        info("*** \t[MongoDB]\tloader\n")
-        mongoDbLoader = net.addDockerHost("mongodbloader",
-                                    dimage="project:mongodb",
-                                    ip="10.1.0.50/24",
-                                    docker_args={                                        
-                                        #"environment": {
-                                        #    "DB_HOST=10.1.0.5"
-                                        #},
-                                        "volumes": {
-                                            bind_dir + "/open5gs_config/provisioning/db/run_db.sh": {
-                                                "bind": "/tmp/run.sh",
-                                                "mode": "ro",
-                                            },
-                                            bind_dir + "/open5gs_config/provisioning/db/subscribers.json": {
-                                                "bind": "/tmp/subscribers.json",
-                                                "mode": "ro",
-                                            },
-                                            bind_dir + "/open5gs_config/provisioning/db/profiles.json": {
-                                                "bind": "/tmp/profiles.json",
-                                                "mode": "ro",
-                                            }
-                                        }
-                                    })
+        #info("*** \t[MongoDB]\tloader\n")
+        #mongoDbLoader = net.addDockerHost("mongodbloader",
+        #                            dimage="project:mongodb",
+        #                            ip="10.1.0.50/24",
+        #                            docker_args={                                        
+        #                                "environment": [
+        #                                    "DB_HOST=10.1.0.5"
+        #                                ],
+        #                                "volumes": {
+        #                                    bind_dir + "/open5gs_config/provisioning/db/run_db.sh": {
+        #                                        "bind": "/tmp/run.sh",
+        #                                        "mode": "ro",
+        #                                    },
+        #                                    bind_dir + "/open5gs_config/provisioning/db/subscribers.json": {
+        #                                        "bind": "/tmp/subscribers.json",
+        #                                        "mode": "ro",
+        #                                    },
+        #                                    bind_dir + "/open5gs_config/provisioning/db/profiles.json": {
+        #                                        "bind": "/tmp/profiles.json",
+        #                                        "mode": "ro",
+        #                                    }
+        #                                }
+        #                            })
 
         info("*** \t[Open5GS]\tWebUI\n")
         webui = net.addDockerHost("webui",
                                 dimage="project:open5gsWebWtools",
                                 ip="10.1.0.6/24",
                                 docker_args={                                    
-                                    #"environment": {
-                                    #    "DB_URI=mongodb://10.1.0.5/open5gs"
-                                    #},                                        
+                                    "environment": [
+                                        "DB_URI=mongodb://10.1.0.5/open5gs"
+                                    ],                                        
                                     "ports": {
                                         "3000": 3000
                                     },
@@ -349,7 +347,6 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tamf\n")
         amf = net.addDockerHost("amf",
-                                #TODO:ADD IMAGE, fix 2 IPs thing
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.11/24",
                                 docker_args={
@@ -370,6 +367,7 @@ def initialize5GNet(interactive):
                                         }
                                     }
                                 })
+
         #UERANSIM SERVICES
         info("*** Adding UERANSIM components\n")
         info("*** \t[UERANSIM]\tgnb\n")
@@ -423,7 +421,7 @@ def initialize5GNet(interactive):
 
         info("*** Adding links\n")
         net.addLink(mongoDb, sOpen, bw=1000, delay="1ms", intfName1="mongoDb1-s1", intfName2="s1-mongoDb1")
-        net.addLink(mongoDbLoader, sOpen, bw=1000, delay="1ms", intfName1="mongoDbL1-s1", intfName2="s1-mongoDbL1")
+        #net.addLink(mongoDbLoader, sOpen, bw=1000, delay="1ms", intfName1="mongoDbL1-s1", intfName2="s1-mongoDbL1")
         net.addLink(webui, sOpen, bw=1000, delay="1ms", intfName1="webui1-s1", intfName2="s1-webui1")
         net.addLink(nrf, sOpen, bw=1000, delay="1ms", intfName1="nrf1-s1", intfName2="s1-nrf1")
         net.addLink(ausf, sOpen, bw=1000, delay="1ms", intfName1="ausf1-s1", intfName2="s1-ausf1")
@@ -439,15 +437,18 @@ def initialize5GNet(interactive):
         net.addLink(sgwc, sOpen, bw=1000, delay="1ms", intfName1="sgwc1-s1", intfName2="s1-sgwc1")
         net.addLink(sgwu, sOpen, bw=1000, delay="1ms", intfName1="sgwu1-s1", intfName2="s1-sgwu1")
         net.addLink(mme, sOpen, bw=1000, delay="1ms", intfName1="mme1-s1", intfName2="s1-mme1")
-        # TODO: Connect to both networks
-        net.addLink(amf, sOpen, bw=1000, delay="1ms", intfName1="amf1-s1", intfName2="s1-amf1")        
-        
+
+        # Connect the AMF to both networks
+        net.addLink(amf, sOpen, bw=1000, delay="1ms", intfName1="amf1-s1", intfName2="s1-amf1")
+        net.addLink(amf, sUeransim, bw=1000, delay="1ms", intfName1="amf1-s2", intfName2="s2-amf1")
+        amf.intfs[1].setIP('10.0.0.4/24')
+
         net.addLink(gnb, sUeransim, bw=1000, delay="1ms", intfName1="gnb1-s2", intfName2="s2-gnb1")
         net.addLink(ue1, sUeransim, bw=1000, delay="1ms", intfName1="ue1-s2", intfName2="s2-ue1")
 
         info("*** Starting network\n")
         net.start()
-        net.pingAll()
+        #net.pingAll()
 
         if interactive:
             spawnXtermDocker("mongoDb")
@@ -473,8 +474,8 @@ def initialize5GNet(interactive):
 
             CLI(net)
         else:
-            info("*** Importing mongodb database\n")
-            mongoDbLoader.sendCmd("/bin/sh /tmp/run.sh")
+            info("*** Starting the MongoDB instance\n")
+            mongoDb.sendCmd("/usr/local/bin/docker-entrypoint.sh")
             
             info("*** Starting webui...\n")
             webui.sendCmd("/bin/sh /etc/open5gs/run_webui.sh")
@@ -536,6 +537,7 @@ def initialize5GNet(interactive):
             ue1.sendCmd("./nr-ue -c custom-ue.yaml")
 
             input("Emulation setup ready. Press enter to terminate")
+            input()
     
     except Exception as e:
         error("*** Emulation has errors: \n")
