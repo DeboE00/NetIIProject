@@ -28,10 +28,16 @@ def initialize5GNet(interactive):
                                     dimage="project:mongodb",
                                     ip="10.1.0.5/24",
                                     docker_args={
+                                        "hostname": "mongodb",
                                         "volumes": {
-                                            bind_dir + "/mongodbdata": {
-                                                "bind": "/data/db",
-                                                "mode": "rw",
+                                            # Disable temporary the mount dir, as it doesn't work
+                                            #bind_dir + "/mongodbdata/": {
+                                            #    "bind": "/data/db",
+                                            #    "mode": "rw",
+                                            #},
+                                            bind_dir + "/open5gs_config/log/mongodb": {
+                                                "bind": "/var/log/mongodb",
+                                                "mode": "rw"
                                             },
                                             "/etc/timezone": {
                                                 "bind": "/etc/timezone",
@@ -44,29 +50,30 @@ def initialize5GNet(interactive):
                                         }
                                     })
 
-        #info("*** \t[MongoDB]\tloader\n")
-        #mongoDbLoader = net.addDockerHost("mongodbloader",
-        #                            dimage="project:mongodb",
-        #                            ip="10.1.0.50/24",
-        #                            docker_args={                                        
-        #                                "environment": [
-        #                                    "DB_HOST=10.1.0.5"
-        #                                ],
-        #                                "volumes": {
-        #                                    bind_dir + "/open5gs_config/provisioning/db/run_db.sh": {
-        #                                        "bind": "/tmp/run.sh",
-        #                                        "mode": "ro",
-        #                                    },
-        #                                    bind_dir + "/open5gs_config/provisioning/db/subscribers.json": {
-        #                                        "bind": "/tmp/subscribers.json",
-        #                                        "mode": "ro",
-        #                                    },
-        #                                    bind_dir + "/open5gs_config/provisioning/db/profiles.json": {
-        #                                        "bind": "/tmp/profiles.json",
-        #                                        "mode": "ro",
-        #                                    }
-        #                                }
-        #                            })
+        info("*** \t[MongoDB]\tloader\n")
+        mongoDbLoader = net.addDockerHost("mongodbloader",
+                                    dimage="project:mongodb",
+                                    ip="10.1.0.50/24",
+                                    docker_args={                                        
+                                        "environment": [
+                                            "DB_HOST=10.1.0.5"
+                                        ],
+                                        "hostname": "mongodbloader",
+                                        "volumes": {
+                                            bind_dir + "/open5gs_config/provisioning/db/run_db.sh": {
+                                                "bind": "/tmp/run.sh",
+                                                "mode": "ro",
+                                            },
+                                            bind_dir + "/open5gs_config/provisioning/db/subscribers.json": {
+                                                "bind": "/tmp/subscribers.json",
+                                                "mode": "ro",
+                                            },
+                                            bind_dir + "/open5gs_config/provisioning/db/profiles.json": {
+                                                "bind": "/tmp/profiles.json",
+                                                "mode": "ro",
+                                            }
+                                        }
+                                    })
 
         info("*** \t[Open5GS]\tWebUI\n")
         webui = net.addDockerHost("webui",
@@ -79,6 +86,7 @@ def initialize5GNet(interactive):
                                     "ports": {
                                         "3000": 3000
                                     },
+                                    "hostname": "webui",
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -91,7 +99,8 @@ def initialize5GNet(interactive):
         nrf = net.addDockerHost("nrf",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.10/24",
-                                docker_args={                                                                           
+                                docker_args={
+                                    "hostname": "nrf",                                                                   
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -108,7 +117,8 @@ def initialize5GNet(interactive):
         ausf = net.addDockerHost("ausf",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.12/24",
-                                docker_args={                                                                           
+                                docker_args={
+                                    "hostname": "ausf",                                                                    
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -125,7 +135,8 @@ def initialize5GNet(interactive):
         udm = net.addDockerHost("udm",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.13/24",
-                                docker_args={                                                                        
+                                docker_args={  
+                                    "hostname": "udm",                                                               
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -142,7 +153,8 @@ def initialize5GNet(interactive):
         pcf = net.addDockerHost("pcf",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.14/24",
-                                docker_args={                                                                           
+                                docker_args={
+                                    "hostname": "pcf",                                                              
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -159,7 +171,8 @@ def initialize5GNet(interactive):
         nssf = net.addDockerHost("nssf",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.15/24",
-                                docker_args={                                                                         
+                                docker_args={   
+                                    "hostname": "nssf",                                                              
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -176,7 +189,8 @@ def initialize5GNet(interactive):
         bsf = net.addDockerHost("bsf",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.16/24",
-                                docker_args={                                                                          
+                                docker_args={
+                                    "hostname": "bsf",              
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -193,7 +207,8 @@ def initialize5GNet(interactive):
         udr = net.addDockerHost("udr",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.17/24",
-                                docker_args={                                                                         
+                                docker_args={       
+                                    "hostname": "udr",                                                           
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -210,7 +225,8 @@ def initialize5GNet(interactive):
         upf = net.addDockerHost("upf",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.19/24",
-                                docker_args={                                                                             
+                                docker_args={
+                                    "hostname": "upf",                                                                
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -231,7 +247,8 @@ def initialize5GNet(interactive):
         smf = net.addDockerHost("smf",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.18/24",
-                                docker_args={                                                                           
+                                docker_args={
+                                    "hostname": "smf",                                                                     
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -252,7 +269,8 @@ def initialize5GNet(interactive):
         pcrf = net.addDockerHost("pcrf",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.20/24",
-                                docker_args={                                                                            
+                                docker_args={
+                                    "hostname": "pcrf",                                                               
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -273,7 +291,8 @@ def initialize5GNet(interactive):
         hss = net.addDockerHost("hss",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.21/24",
-                                docker_args={                                     
+                                docker_args={
+                                    "hostname": "hss",                    
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -294,7 +313,8 @@ def initialize5GNet(interactive):
         sgwc = net.addDockerHost("sgwc",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.23/24",
-                                docker_args={                                      
+                                docker_args={
+                                    "hostname": "sgwc",
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -311,7 +331,8 @@ def initialize5GNet(interactive):
         sgwu = net.addDockerHost("sgwu",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.24/24",
-                                docker_args={                                       
+                                docker_args={
+                                    "hostname": "sgwu",
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -328,7 +349,8 @@ def initialize5GNet(interactive):
         mme = net.addDockerHost("mme",
                                 dimage="project:open5gsWtools",
                                 ip="10.1.0.22/24",
-                                docker_args={                                       
+                                docker_args={
+                                    "hostname": "mme",
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -356,6 +378,7 @@ def initialize5GNet(interactive):
                                         "2123":2123,
                                         "2123/udp":2123
                                     },                                       
+                                    "hostname": "amf",
                                     "volumes": {
                                         bind_dir + "/open5gs_config/config": {
                                             "bind": "/etc/open5gs",
@@ -382,6 +405,7 @@ def initialize5GNet(interactive):
                                     "cap_add": [
                                         "NET_ADMIN"
                                     ],
+                                    "hostname": "gnb",
                                     "devices": "/dev/net/tun:/dev/net/tun:rwm",                                       
                                     "volumes": {
                                         bind_dir + "/startGnb.sh": {
@@ -391,6 +415,10 @@ def initialize5GNet(interactive):
                                         bind_dir + "/custom-gnb.yaml": {
                                             "bind": "/UERANSIM/custom-gnb.yaml",
                                             "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/ueransim": {
+                                            "bind": "/var/log/ueransim",
+                                            "mode": "rw"
                                         }
                                     }
                                 })
@@ -403,11 +431,16 @@ def initialize5GNet(interactive):
                                     "cap_add": [
                                         "NET_ADMIN"
                                     ],
-                                    "devices": "/dev/net/tun:/dev/net/tun:rwm",                                                                                                                      
+                                    "devices": "/dev/net/tun:/dev/net/tun:rwm",     
+                                    "hostname": "ue1",                                                                                                                 
                                     "volumes": {
                                         bind_dir + "/custom-ue.yaml": {
                                             "bind": "/UERANSIM/custom-ue.yaml",
                                             "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/ueransim": {
+                                            "bind": "/var/log/ueransim",
+                                            "mode": "rw"
                                         }
                                     }                                      
                                 })
@@ -421,7 +454,7 @@ def initialize5GNet(interactive):
 
         info("*** Adding links\n")
         net.addLink(mongoDb, sOpen, bw=1000, delay="1ms", intfName1="mongoDb1-s1", intfName2="s1-mongoDb1")
-        #net.addLink(mongoDbLoader, sOpen, bw=1000, delay="1ms", intfName1="mongoDbL1-s1", intfName2="s1-mongoDbL1")
+        net.addLink(mongoDbLoader, sOpen, bw=1000, delay="1ms", intfName1="mongoDbL1-s1", intfName2="s1-mongoDbL1")
         net.addLink(webui, sOpen, bw=1000, delay="1ms", intfName1="webui1-s1", intfName2="s1-webui1")
         net.addLink(nrf, sOpen, bw=1000, delay="1ms", intfName1="nrf1-s1", intfName2="s1-nrf1")
         net.addLink(ausf, sOpen, bw=1000, delay="1ms", intfName1="ausf1-s1", intfName2="s1-ausf1")
@@ -448,7 +481,10 @@ def initialize5GNet(interactive):
 
         info("*** Starting network\n")
         net.start()
-        #net.pingAll()
+        # Ping all open5gs hosts
+        net.ping([mongoDb, webui, nrf, ausf, udm, pcf, nssf, bsf, udr, upf, smf, pcrf, hss, sgwc, sgwu, mme, amf])
+        # Ping all UERANSIM hosts
+        net.ping([amf, gnb, ue1])
 
         if interactive:
             spawnXtermDocker("mongoDb")
@@ -474,9 +510,12 @@ def initialize5GNet(interactive):
 
             CLI(net)
         else:
-            info("*** Starting the MongoDB instance\n")
-            mongoDb.sendCmd("/usr/local/bin/docker-entrypoint.sh")
-            
+            info("*** Starting MongoDB...\n")
+            mongoDb.sendCmd("mongod --dbpath /data/db --logpath /var/log/mongodb/mongodb.log --logRotate reopen --logappend --bind_ip_all")
+
+            info("*** Import MongoDB data\n")
+            mongoDbLoader.sendCmd("/bin/sh /tmp/run.sh")
+
             info("*** Starting webui...\n")
             webui.sendCmd("/bin/sh /etc/open5gs/run_webui.sh")
 
@@ -531,13 +570,12 @@ def initialize5GNet(interactive):
             time.sleep(5)
 
             info("*** Starting the gnb...\n")
-            gnb.sendCmd("bash startGnb.sh")
+            gnb.sendCmd("bash startGnb.sh >> /var/log/ueransim/gnb.log")
 
             info("*** Starting the UE...\n")
-            ue1.sendCmd("./nr-ue -c custom-ue.yaml")
+            ue1.sendCmd("./nr-ue -c custom-ue.yaml >> /var/log/ueransim/ue1.log")
 
             input("Emulation setup ready. Press enter to terminate")
-            input()
     
     except Exception as e:
         error("*** Emulation has errors: \n")
