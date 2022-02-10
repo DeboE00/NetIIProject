@@ -71,7 +71,11 @@ def initialize5GNet(interactive):
                                             bind_dir + "/open5gs_config/provisioning/db/profiles.json": {
                                                 "bind": "/tmp/profiles.json",
                                                 "mode": "ro",
-                                            }
+                                            },
+                                            bind_dir + "/open5gs_config/log/mongodb": {
+                                                "bind": "/var/log/mongodb",
+                                                "mode": "rw"
+                                            },
                                         }
                                     })
 
@@ -408,7 +412,7 @@ def initialize5GNet(interactive):
                                     "hostname": "gnb",
                                     "devices": "/dev/net/tun:/dev/net/tun:rwm",                                       
                                     "volumes": {
-                                        bind_dir + "/startGnb.sh": {
+                                        bind_dir + "/startGnbComnetsemu.sh": {
                                             "bind": "/UERANSIM/startGnb.sh",
                                             "mode": "ro"
                                         },
@@ -514,7 +518,7 @@ def initialize5GNet(interactive):
             mongoDb.sendCmd("mongod --dbpath /data/db --logpath /var/log/mongodb/mongodb.log --logRotate reopen --logappend --bind_ip_all")
 
             info("*** Import MongoDB data\n")
-            mongoDbLoader.sendCmd("/bin/sh /tmp/run.sh")
+            mongoDbLoader.sendCmd("/bin/sh /tmp/run.sh >> /var/log/mongodb/importer.log")
 
             info("*** Starting webui...\n")
             webui.sendCmd("/bin/sh /etc/open5gs/run_webui.sh")
