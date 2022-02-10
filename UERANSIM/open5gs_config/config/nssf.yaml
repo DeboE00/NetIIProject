@@ -3,12 +3,16 @@
 logger:
     file: /var/log/open5gs/nssf.log
 
+parameter:
+  no_ipv6: true
+  prefer_ipv4: true
+
 nssf:
     sbi:
       - addr: 10.1.0.15
         port: 7777
     nsi:
-      - addr: ::1
+      - addr: 10.1.0.10
         port: 7777
         s_nssai:
           sst: 1

@@ -244,6 +244,7 @@ def initialize5GNet(interactive):
                                     "cap_add": [
                                         "NET_ADMIN"
                                     ],
+                                    "sysctls": {"net.ipv4.ip_forward": 1},
                                     "devices": "/dev/net/tun:/dev/net/tun:rwm"                                        
                                 })
 
@@ -266,7 +267,12 @@ def initialize5GNet(interactive):
                                             "bind": "/etc/freeDiameter",
                                             "mode": "ro"
                                         }
-                                    }
+                                    },                                        
+                                    "cap_add": [
+                                        "NET_ADMIN"
+                                    ],
+                                    "sysctls": {"net.ipv4.ip_forward": 1},
+                                    "devices": "/dev/net/tun:/dev/net/tun:rwm"
                                 })
 
         info("*** \t[Open5GS]\tpcrf\n")
@@ -423,7 +429,8 @@ def initialize5GNet(interactive):
                                         bind_dir + "/open5gs_config/log/ueransim": {
                                             "bind": "/var/log/ueransim",
                                             "mode": "rw"
-                                        }
+                                        },
+                                        "/dev": {"bind": "/dev", "mode": "rw"}
                                     }
                                 })
 
@@ -436,7 +443,7 @@ def initialize5GNet(interactive):
                                         "NET_ADMIN"
                                     ],
                                     "devices": "/dev/net/tun:/dev/net/tun:rwm",     
-                                    "hostname": "ue1",                                                                                                                 
+                                    "hostname": "ue1",                                                                                                     
                                     "volumes": {
                                         bind_dir + "/custom-ue.yaml": {
                                             "bind": "/UERANSIM/custom-ue.yaml",
@@ -445,7 +452,8 @@ def initialize5GNet(interactive):
                                         bind_dir + "/open5gs_config/log/ueransim": {
                                             "bind": "/var/log/ueransim",
                                             "mode": "rw"
-                                        }
+                                        },
+                                        "/dev": {"bind": "/dev", "mode": "rw"}
                                     }                                      
                                 })
 
@@ -468,7 +476,6 @@ def initialize5GNet(interactive):
         net.addLink(bsf, sOpen, bw=1000, delay="1ms", intfName1="bsf1-s1", intfName2="s1-bsf1")
         net.addLink(udr, sOpen, bw=1000, delay="1ms", intfName1="udr1-s1", intfName2="s1-udr1")
         net.addLink(upf, sOpen, bw=1000, delay="1ms", intfName1="upf1-s1", intfName2="s1-upf1")
-        net.addLink(smf, sOpen, bw=1000, delay="1ms", intfName1="smf1-s1", intfName2="s1-smf1")
         net.addLink(pcrf, sOpen, bw=1000, delay="1ms", intfName1="pcrf1-s1", intfName2="s1-pcrf1")
         net.addLink(hss, sOpen, bw=1000, delay="1ms", intfName1="hss1-s1", intfName2="s1-hss1")
         net.addLink(sgwc, sOpen, bw=1000, delay="1ms", intfName1="sgwc1-s1", intfName2="s1-sgwc1")
@@ -480,6 +487,11 @@ def initialize5GNet(interactive):
         net.addLink(amf, sUeransim, bw=1000, delay="1ms", intfName1="amf1-s2", intfName2="s2-amf1")
         amf.intfs[1].setIP('10.0.0.4/24')
 
+        # Connect the SMF to both networks
+        net.addLink(smf, sOpen, bw=1000, delay="1ms", intfName1="smf1-s1", intfName2="s1-smf1")
+        net.addLink(smf, sUeransim, bw=1000, delay="1ms", intfName1="smf1-s2", intfName2="s2-smf1")
+        smf.intfs[1].setIP('10.0.0.5/24')
+
         net.addLink(gnb, sUeransim, bw=1000, delay="1ms", intfName1="gnb1-s2", intfName2="s2-gnb1")
         net.addLink(ue1, sUeransim, bw=1000, delay="1ms", intfName1="ue1-s2", intfName2="s2-ue1")
 
@@ -488,7 +500,7 @@ def initialize5GNet(interactive):
         # Ping all open5gs hosts
         net.ping([mongoDb, webui, nrf, ausf, udm, pcf, nssf, bsf, udr, upf, smf, pcrf, hss, sgwc, sgwu, mme, amf])
         # Ping all UERANSIM hosts
-        net.ping([amf, gnb, ue1])
+        #net.ping([amf, gnb, ue1])
 
         if interactive:
             spawnXtermDocker("mongoDb")

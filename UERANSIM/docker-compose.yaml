@@ -353,7 +353,7 @@ services:
 
   # UERANSIM services
   gnb:
-    image: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
+    image: project:ueransim
     depends_on:
       - amf
     networks:
@@ -374,7 +374,7 @@ services:
       - "./custom-gnb.yaml:/UERANSIM/custom-gnb.yaml:ro"
     command: "bash startGnb.sh"
   ue1:
-    image: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
+    image: project:ueransim
     depends_on:
      - gnb
     networks:
@@ -388,7 +388,7 @@ services:
       -  /dev/net/tun
     privileged: true # if IPv6 enabled
   ue2:
-    image: registry.enricodebon.com:5000/university/networking-ii-2022-2021/project:ueransim
+    image: project:ueransim
     depends_on:
      - gnb
     networks:

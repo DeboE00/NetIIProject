@@ -1,5 +1,5 @@
 #!/bin/sh
-export AMF_STARTUP_TIME=30
+export AMF_STARTUP_TIME=15
 export IP_ADDR=$(ifconfig gnb1-s2 | grep 'inet' | cut -d ' ' -f 10)
 echo
 echo "gNB IP Address: ${IP_ADDR}"

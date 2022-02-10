@@ -7,6 +7,7 @@ logger:
 
 parameter:
     no_ipv6: true
+    prefer_ipv4: true
 
 pcrf:
     freeDiameter: /etc/freeDiameter/pcrf.conf

@@ -5,6 +5,7 @@ logger:
 
 parameter:
     no_ipv6: true
+    prefer_ipv4: true
 
 smf:
     sbi:
@@ -18,6 +19,7 @@ smf:
       addr: 10.1.0.18
     subnet:
       addr: 10.45.0.1/16
+      dnn: internet
     dns:
       - 1.1.1.1
       - 1.0.0.1
