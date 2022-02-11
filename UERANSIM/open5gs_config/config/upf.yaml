@@ -14,5 +14,7 @@ upf:
       - addr: 10.1.0.19
     subnet:
       - addr: 10.45.0.1/16
+        dnn: internet
+        dev: ogstun
 
 smf:

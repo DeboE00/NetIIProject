@@ -7,29 +7,14 @@ if ! [ -x "$(command -v docker-compose)" ]; then
     sudo chmod +x /usr/local/bin/docker-compose
 fi
 # Create the open5gs image
-cd UERANSIM/
-if [ -d "open5gs" ]; then
-    cd open5gs
-    git pull
-    cd ..
-else
-    git clone https://github.com/open5gs/open5gs.git
-fi
-
-cd open5gs/docker
-USER=open5gs DIST=ubuntu TAG=focal BRANCH=v2.4.4 docker-compose build $ADDITIONAL_DOCKER_PARAMS
-# Create the open5gs images with tools
-cd ../../../dockerImages/open5gsWtools
-docker build $ADDITIONAL_DOCKER_PARAMS -t project:open5gsWtools .
-# Create the open5gs web image with tools
-cd ../open5gsWebWtools
-docker build $ADDITIONAL_DOCKER_PARAMS -t project:open5gsWebWtools .
+cd dockerImages/open5gs
+OPEN5GS_VERSION=v2.4.4 docker build $ADDITIONAL_DOCKER_PARAMS --force-rm -t project:open5gs .
 # Create the UERANSIM image
 cd ../UERANSIM
-docker build $ADDITIONAL_DOCKER_PARAMS -t project:ueransim .
+docker build $ADDITIONAL_DOCKER_PARAMS --force-rm -t project:ueransim .
 # Create the custom mongodb image
 cd ../Mongodb
-docker build $ADDITIONAL_DOCKER_PARAMS -t project:mongodb .
+docker build $ADDITIONAL_DOCKER_PARAMS --force-rm -t project:mongodb .
 # Create the project's images
 cd ../../UERANSIM
 docker-compose build $ADDITIONAL_DOCKER_PARAMS

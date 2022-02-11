@@ -34,3 +34,4 @@ nrf:
 upf:
     pfcp:
       addr: 10.1.0.19
+      dnn: internet

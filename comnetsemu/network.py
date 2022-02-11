@@ -81,7 +81,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tWebUI\n")
         webui = net.addDockerHost("webui",
-                                dimage="project:open5gsWebWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.6/24",
                                 docker_args={                                    
                                     "environment": [
@@ -101,7 +101,7 @@ def initialize5GNet(interactive):
         
         info("*** \t[Open5GS]\tnrf\n")
         nrf = net.addDockerHost("nrf",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.10/24",
                                 docker_args={
                                     "hostname": "nrf",                                                                   
@@ -119,7 +119,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tausf\n")
         ausf = net.addDockerHost("ausf",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.12/24",
                                 docker_args={
                                     "hostname": "ausf",                                                                    
@@ -137,7 +137,7 @@ def initialize5GNet(interactive):
                                 
         info("*** \t[Open5GS]\tudm\n")
         udm = net.addDockerHost("udm",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.13/24",
                                 docker_args={  
                                     "hostname": "udm",                                                               
@@ -155,7 +155,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tpcf\n")
         pcf = net.addDockerHost("pcf",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.14/24",
                                 docker_args={
                                     "hostname": "pcf",                                                              
@@ -173,7 +173,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tnssf\n")
         nssf = net.addDockerHost("nssf",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.15/24",
                                 docker_args={   
                                     "hostname": "nssf",                                                              
@@ -191,7 +191,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tbsf\n")
         bsf = net.addDockerHost("bsf",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.16/24",
                                 docker_args={
                                     "hostname": "bsf",              
@@ -209,7 +209,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tudr\n")
         udr = net.addDockerHost("udr",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.17/24",
                                 docker_args={       
                                     "hostname": "udr",                                                           
@@ -227,7 +227,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tupf\n")
         upf = net.addDockerHost("upf",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.19/24",
                                 docker_args={
                                     "hostname": "upf",                                                                
@@ -250,7 +250,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tsmf\n")
         smf = net.addDockerHost("smf",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.18/24",
                                 docker_args={
                                     "hostname": "smf",                                                                     
@@ -277,7 +277,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tpcrf\n")
         pcrf = net.addDockerHost("pcrf",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.20/24",
                                 docker_args={
                                     "hostname": "pcrf",                                                               
@@ -299,7 +299,7 @@ def initialize5GNet(interactive):
         
         info("*** \t[Open5GS]\thss\n")
         hss = net.addDockerHost("hss",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.21/24",
                                 docker_args={
                                     "hostname": "hss",                    
@@ -321,7 +321,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tsgwc\n")
         sgwc = net.addDockerHost("sgwc",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.23/24",
                                 docker_args={
                                     "hostname": "sgwc",
@@ -339,7 +339,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tsgwu\n")
         sgwu = net.addDockerHost("sgwu",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.24/24",
                                 docker_args={
                                     "hostname": "sgwu",
@@ -357,7 +357,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tmme\n")
         mme = net.addDockerHost("mme",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.22/24",
                                 docker_args={
                                     "hostname": "mme",
@@ -379,7 +379,7 @@ def initialize5GNet(interactive):
 
         info("*** \t[Open5GS]\tamf\n")
         amf = net.addDockerHost("amf",
-                                dimage="project:open5gsWtools",
+                                dimage="project:open5gs",
                                 ip="10.1.0.11/24",
                                 docker_args={
                                     "ports": {
@@ -457,6 +457,29 @@ def initialize5GNet(interactive):
                                     }                                      
                                 })
 
+        info("*** \t[UERANSIM]\tue2\n")
+        ue2 = net.addDockerHost("ue2",
+                                dimage="project:ueransim",
+                                ip="10.0.0.26/24",
+                                docker_args={                                       
+                                    "cap_add": [
+                                        "NET_ADMIN"
+                                    ],
+                                    "devices": "/dev/net/tun:/dev/net/tun:rwm",     
+                                    "hostname": "ue2",                                                                                                     
+                                    "volumes": {
+                                        bind_dir + "/custom-ue.1.yaml": {
+                                            "bind": "/UERANSIM/custom-ue.yaml",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/ueransim": {
+                                            "bind": "/var/log/ueransim",
+                                            "mode": "rw"
+                                        },
+                                        "/dev": {"bind": "/dev", "mode": "rw"}
+                                    }                                      
+                                })
+
         info("*** Adding controller\n")
         net.addController("c0")
 
@@ -494,8 +517,9 @@ def initialize5GNet(interactive):
 
         net.addLink(gnb, sUeransim, bw=1000, delay="1ms", intfName1="gnb1-s2", intfName2="s2-gnb1")
         net.addLink(ue1, sUeransim, bw=1000, delay="1ms", intfName1="ue1-s2", intfName2="s2-ue1")
+        net.addLink(ue2, sUeransim, bw=1000, delay="1ms", intfName1="ue2-s2", intfName2="s2-ue2")
 
-        info("*** Starting network\n")
+        info("\n*** Starting network\n")
         net.start()
         # Ping all open5gs hosts
         net.ping([mongoDb, webui, nrf, ausf, udm, pcf, nssf, bsf, udr, upf, smf, pcrf, hss, sgwc, sgwu, mme, amf])
@@ -523,6 +547,7 @@ def initialize5GNet(interactive):
             spawnXtermDocker("amf")
             spawnXtermDocker("gnb")
             spawnXtermDocker("ue1")
+            spawnXtermDocker("ue2")
 
             CLI(net)
         else:
@@ -530,66 +555,69 @@ def initialize5GNet(interactive):
             mongoDb.sendCmd("mongod --dbpath /data/db --logpath /var/log/mongodb/mongodb.log --logRotate reopen --logappend --bind_ip_all")
 
             info("*** Import MongoDB data\n")
-            mongoDbLoader.sendCmd("/bin/sh /tmp/run.sh >> /var/log/mongodb/importer.log")
+            mongoDbLoader.sendCmd("/bin/bash /tmp/run.sh >> /var/log/mongodb/importer.log")
 
             info("*** Starting webui...\n")
-            webui.sendCmd("/bin/sh /etc/open5gs/run_webui.sh")
+            webui.sendCmd("/bin/bash /etc/open5gs/run_webui.sh")
 
             info("*** Starting nrf...\n")
-            nrf.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh nrf")
+            nrf.sendCmd("/bin/bash /etc/open5gs/run_waitMongo.sh nrf")
             time.sleep(5)
             
             info("*** Starting ausf...\n")
-            ausf.sendCmd("/bin/sh /etc/open5gs/run_standalone.sh ausf")
+            ausf.sendCmd("/bin/bash /etc/open5gs/run_standalone.sh ausf")
 
             info("*** Starting udm...\n")
-            udm.sendCmd("/bin/sh /etc/open5gs/run_standalone.sh udm")
+            udm.sendCmd("/bin/bash /etc/open5gs/run_standalone.sh udm")
 
             info("*** Starting pcf...\n")
-            pcf.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh pcf")
+            pcf.sendCmd("/bin/bash /etc/open5gs/run_waitMongo.sh pcf")
 
             info("*** Starting nssf...\n")
-            nssf.sendCmd("/bin/sh /etc/open5gs/run_standalone.sh nssf")
+            nssf.sendCmd("/bin/bash /etc/open5gs/run_standalone.sh nssf")
 
             info("*** Starting bsf...\n")
-            bsf.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh bsf")
+            bsf.sendCmd("/bin/bash /etc/open5gs/run_waitMongo.sh bsf")
 
             info("*** Starting udr...\n")
-            udr.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh udr")
+            udr.sendCmd("/bin/bash /etc/open5gs/run_waitMongo.sh udr")
 
             info("*** Starting upf...\n")
-            upf.sendCmd("/bin/sh /etc/open5gs/run_virtualNet.sh upf")
+            upf.sendCmd("/bin/bash /etc/open5gs/run_virtualNet.sh upf")
             time.sleep(5)
 
             info("*** Starting smf...\n")
-            smf.sendCmd("/bin/sh /etc/open5gs/run_virtualNet.sh smf")
+            smf.sendCmd("/bin/bash /etc/open5gs/run_standalone.sh smf")
             time.sleep(5)
 
             info("*** Starting pcrf...\n")
-            pcrf.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh pcrf")
+            pcrf.sendCmd("/bin/bash /etc/open5gs/run_waitMongo.sh pcrf")
 
             info("*** Starting hss...\n")
-            hss.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh hss")
+            hss.sendCmd("/bin/bash /etc/open5gs/run_waitMongo.sh hss")
 
             info("*** Starting sgwc...\n")
-            sgwc.sendCmd("/bin/sh /etc/open5gs/run_standalone.sh sgwc")
+            sgwc.sendCmd("/bin/bash /etc/open5gs/run_standalone.sh sgwc")
             time.sleep(5)
 
             info("*** Starting sgwu...\n")
-            sgwu.sendCmd("/bin/sh /etc/open5gs/run_standalone.sh sgwu")
+            sgwu.sendCmd("/bin/bash /etc/open5gs/run_standalone.sh sgwu")
 
             info("*** Starting mme...\n")
-            mme.sendCmd("/bin/sh /etc/open5gs/run_standalone.sh mme")
+            mme.sendCmd("/bin/bash /etc/open5gs/run_standalone.sh mme")
 
             info("*** Starting amf...\n")
-            amf.sendCmd("/bin/sh /etc/open5gs/run_waitMongo.sh amf")
+            amf.sendCmd("/bin/bash /etc/open5gs/run_waitMongo.sh amf")
             time.sleep(5)
 
-            info("*** Starting the gnb...\n")
+            info("*** Starting the GNB...\n")
             gnb.sendCmd("bash startGnb.sh >> /var/log/ueransim/gnb.log")
 
-            info("*** Starting the UE...\n")
+            info("*** Starting UE 1...\n")
             ue1.sendCmd("./nr-ue -c custom-ue.yaml >> /var/log/ueransim/ue1.log")
+
+            info("*** Starting UE 2...\n")
+            ue2.sendCmd("./nr-ue -c custom-ue.yaml >> /var/log/ueransim/ue2.log")
 
             input("Emulation setup ready. Press enter to terminate")
     

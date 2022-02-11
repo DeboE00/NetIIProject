@@ -55,7 +55,7 @@ services:
         ipv4_address: 10.1.0.50
 
   webui:
-    image: open5gs/open5gs-webui:latest
+    image: project:open5gs
     depends_on:
       - mongodb
     environment:
@@ -74,7 +74,7 @@ services:
         ipv4_address: 10.1.0.6
   # Open5GS services
   nrf:
-    image: open5gs/ubuntu-focal-open5gs-build:latest
+    image: project:open5gs
     depends_on:
       - mongodb
     container_name: nrf
@@ -91,7 +91,7 @@ services:
         ipv4_address: 10.1.0.10
 
   ausf:
-    image: open5gs/ubuntu-focal-open5gs-build:latest
+    image: project:open5gs
     depends_on:
       - nrf
     container_name: ausf
@@ -108,7 +108,7 @@ services:
         ipv4_address: 10.1.0.12
   
   udm:
-    image: open5gs/ubuntu-focal-open5gs-build:latest
+    image: project:open5gs
     depends_on:
       - nrf
     container_name: udm
@@ -125,7 +125,7 @@ services:
         ipv4_address: 10.1.0.13
   
   pcf:
-      image: open5gs/ubuntu-focal-open5gs-build:latest
+      image: project:open5gs
       depends_on:
         - mongodb
         - nrf
@@ -143,7 +143,7 @@ services:
           ipv4_address: 10.1.0.14
 
   nssf:
-    image: open5gs/ubuntu-focal-open5gs-build:latest
+    image: project:open5gs
     depends_on:
       - nrf
     container_name: nssf
@@ -160,7 +160,7 @@ services:
         ipv4_address: 10.1.0.15
   
   bsf:
-    image: open5gs/ubuntu-focal-open5gs-build:latest
+    image: project:open5gs
     depends_on:
       - mongodb
       - nrf
@@ -178,7 +178,7 @@ services:
         ipv4_address: 10.1.0.16
 
   udr:
-    image: open5gs/ubuntu-focal-open5gs-build:latest
+    image: project:open5gs
     depends_on:
       - mongodb
       - nrf
@@ -196,7 +196,7 @@ services:
         ipv4_address: 10.1.0.17
   
   upf:
-    image: project:open5gsWtools
+    image: project:open5gs
     container_name: upf
     hostname: upf
     entrypoint:
@@ -216,7 +216,7 @@ services:
         ipv4_address: 10.1.0.19
 
   smf:
-    image: project:open5gsWtools
+    image: project:open5gs
     depends_on:
       - nrf
       - upf
@@ -240,7 +240,7 @@ services:
         ipv4_address: 10.1.0.18
 
   pcrf:
-    image: open5gs/ubuntu-focal-open5gs-build:latest
+    image: project:open5gs
     depends_on:
       - mongodb
     container_name: pcrf
@@ -258,7 +258,7 @@ services:
         ipv4_address: 10.1.0.20
 
   hss:
-    image: open5gs/ubuntu-focal-open5gs-build:latest
+    image: project:open5gs
     depends_on:
       - mongodb
     container_name: hss
@@ -276,7 +276,7 @@ services:
         ipv4_address: 10.1.0.21
 
   sgwc:
-    image: open5gs/ubuntu-focal-open5gs-build:latest
+    image: project:open5gs
     depends_on:
       - sgwu
     container_name: sgwc
@@ -293,7 +293,7 @@ services:
         ipv4_address: 10.1.0.23
   
   sgwu:
-    image: open5gs/ubuntu-focal-open5gs-build:latest
+    image: project:open5gs
     container_name: sgwu
     hostname: sgwu
     entrypoint:
@@ -308,7 +308,7 @@ services:
         ipv4_address: 10.1.0.24
 
   mme:
-    image: open5gs/ubuntu-focal-open5gs-build:latest
+    image: project:open5gs
     depends_on:
       - smf
       - sgwc
@@ -327,7 +327,7 @@ services:
         ipv4_address: 10.1.0.22
 
   amf:
-    image: open5gs/ubuntu-focal-open5gs-build:latest
+    image: project:open5gs
     depends_on:
       - nrf
     container_name: amf
