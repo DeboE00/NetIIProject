@@ -487,6 +487,8 @@ def initialize5GNet(interactive):
         sOpen = net.addSwitch("s1")
         sUeransim = net.addSwitch("s2")
 
+        net.addLink(sOpen, sUeransim)
+
         info("*** Adding links\n")
         net.addLink(mongoDb, sOpen, bw=1000, delay="1ms", intfName1="mongoDb1-s1", intfName2="s1-mongoDb1")
         net.addLink(mongoDbLoader, sOpen, bw=1000, delay="1ms", intfName1="mongoDbL1-s1", intfName2="s1-mongoDbL1")
@@ -498,7 +500,7 @@ def initialize5GNet(interactive):
         net.addLink(nssf, sOpen, bw=1000, delay="1ms", intfName1="nssf1-s1", intfName2="s1-nssf1")
         net.addLink(bsf, sOpen, bw=1000, delay="1ms", intfName1="bsf1-s1", intfName2="s1-bsf1")
         net.addLink(udr, sOpen, bw=1000, delay="1ms", intfName1="udr1-s1", intfName2="s1-udr1")
-        net.addLink(upf, sOpen, bw=1000, delay="1ms", intfName1="upf1-s1", intfName2="s1-upf1")
+        net.addLink(smf, sOpen, bw=1000, delay="1ms", intfName1="smf1-s1", intfName2="s1-smf1")
         net.addLink(pcrf, sOpen, bw=1000, delay="1ms", intfName1="pcrf1-s1", intfName2="s1-pcrf1")
         net.addLink(hss, sOpen, bw=1000, delay="1ms", intfName1="hss1-s1", intfName2="s1-hss1")
         net.addLink(sgwc, sOpen, bw=1000, delay="1ms", intfName1="sgwc1-s1", intfName2="s1-sgwc1")
@@ -510,12 +512,16 @@ def initialize5GNet(interactive):
         net.addLink(amf, sUeransim, bw=1000, delay="1ms", intfName1="amf1-s2", intfName2="s2-amf1")
         amf.intfs[1].setIP('10.0.0.4/24')
 
-        # Connect the SMF to both networks
-        net.addLink(smf, sOpen, bw=1000, delay="1ms", intfName1="smf1-s1", intfName2="s1-smf1")
-        net.addLink(smf, sUeransim, bw=1000, delay="1ms", intfName1="smf1-s2", intfName2="s2-smf1")
-        smf.intfs[1].setIP('10.0.0.5/24')
+        # Connect the UPF to both networks
+        net.addLink(upf, sOpen, bw=1000, delay="1ms", intfName1="upf1-s1", intfName2="s1-upf1")
+        net.addLink(upf, sUeransim, bw=1000, delay="1ms", intfName1="upf1-s2", intfName2="s2-upf1")
+        upf.intfs[1].setIP('10.0.0.5/24')
 
+        # Connect the GNB to both networks
         net.addLink(gnb, sUeransim, bw=1000, delay="1ms", intfName1="gnb1-s2", intfName2="s2-gnb1")
+        net.addLink(gnb, sOpen, bw=1000, delay="1ms", intfName1="gnb1-s1", intfName2="s1-gnb1")
+        gnb.intfs[1].setIP('10.1.0.51/24')
+
         net.addLink(ue1, sUeransim, bw=1000, delay="1ms", intfName1="ue1-s2", intfName2="s2-ue1")
         net.addLink(ue2, sUeransim, bw=1000, delay="1ms", intfName1="ue2-s2", intfName2="s2-ue2")
 
@@ -611,13 +617,13 @@ def initialize5GNet(interactive):
             time.sleep(5)
 
             info("*** Starting the GNB...\n")
-            gnb.sendCmd("bash startGnb.sh >> /var/log/ueransim/gnb.log")
+            gnb.sendCmd("bash startGnb.sh >> /var/log/ueransim/gnb.log 2>&1")
 
             info("*** Starting UE 1...\n")
-            ue1.sendCmd("./nr-ue -c custom-ue.yaml >> /var/log/ueransim/ue1.log")
+            ue1.sendCmd("./nr-ue -c custom-ue.yaml >> /var/log/ueransim/ue1.log 2>&1")
 
             info("*** Starting UE 2...\n")
-            ue2.sendCmd("./nr-ue -c custom-ue.yaml >> /var/log/ueransim/ue2.log")
+            ue2.sendCmd("./nr-ue -c custom-ue.yaml >> /var/log/ueransim/ue2.log 2>&1")
 
             input("Emulation setup ready. Press enter to terminate")
     

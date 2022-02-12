@@ -26,6 +26,13 @@ RUN apt-get update && \
         mongodb \
         curl \
         gnupg \
+        netbase \
+        ifupdown \
+        net-tools \
+        iputils-ping \
+        iptables \
+        tcpdump \
+        iperf3 \
         ca-certificates \
         libmicrohttpd-dev \
         libcurl4-gnutls-dev \
@@ -35,6 +42,8 @@ RUN apt-get update && \
         libtalloc-dev
 
 RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash - && apt-get install -y nodejs
+
+RUN update-ca-certificates
 
 # Get open5gs code and install
 RUN git clone --recursive https://github.com/open5gs/open5gs && cd open5gs && \
