@@ -22,17 +22,6 @@ nx, graphviz_layout, plt = None, None, None  # Will be imported on demand
 
 # Plotting code
 # From https://github.com/mininet/mininet/blob/master/examples/clustercli.py
-def colorsFor(seq):
-        "Return a list of background colors for a sequence"
-        colors = [ 'red', 'lightgreen', 'cyan', 'yellow', 'orange',
-                   'magenta', 'pink', 'grey', 'brown',
-                   'white' ]
-        slen, clen = len( seq ), len( colors )
-        reps = max( 1, slen / clen )
-        colors = colors * reps
-        colors = colors[ 0 : slen ]
-        return colors
-
 def do_plot(net):
     "Plot topology colored by node placement"
     # Import networkx if needed
@@ -67,30 +56,24 @@ def do_plot(net):
     links = [ ( link.intf1.node, link.intf2.node )
                 for link in net.links ]
     g.add_edges_from( links )
-    # Pick some shapes and colors
-    # shapes = hlen * [ 's' ] + slen * [ 'o' ]
-    color = dict( zip( servers, colorsFor( servers ) ) )
     # Plot it!
     pos = graphviz_layout( g )
-    opts = { 'ax': None, 'font_weight': 'bold',
-                'width': 2, 'edge_color': 'darkblue' }
-    hcolors = [ color[ getattr( h, 'server', 'localhost' ) ]
+    opts = { 'ax': None, 'width': 1, 'edge_color': '#00bfff',
+            'font_size': 9, 'font_color':'white' }
+    hcolors = [ "#0145ac"
                 for h in hosts ]
-    scolors = [ color[ getattr( s, 'server', 'localhost' ) ]
+    scolors = [ "#82c7a5"
                 for s in switches ]
     nx.draw_networkx( g, pos=pos, nodelist=hosts, node_size=800,
                         label='host', node_color=hcolors, node_shape='s',
                         **opts )
     nx.draw_networkx( g, pos=pos, nodelist=switches, node_size=1000,
                         node_color=scolors, node_shape='o', **opts )
-    # Get rid of axes, add title, and show
-    fig = plt.gcf()
+    # Get rid of axes and title, and show
     ax = plt.gca()
     ax.get_xaxis().set_visible( False )
     ax.get_yaxis().set_visible( False )
-    fig.canvas.set_window_title( 'Mininet')
-    plt.title( 'Node Placement', fontweight='bold' )
-    plt.savefig('netTopo.png')
+    plt.savefig('netTopo.png',bbox_inches='tight',transparent=True)
 
 def initialize5GNet(interactive, plot):
     bind_dir = "/home/vagrant/comnetsemu/app/network2_project/UERANSIM"
