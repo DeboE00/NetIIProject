@@ -17,7 +17,82 @@ from mininet.link import TCLink
 from mininet.log import error, info, setLogLevel
 from mininet.node import Controller
 
-def initialize5GNet(interactive):
+# pylint: disable=global-statement
+nx, graphviz_layout, plt = None, None, None  # Will be imported on demand
+
+# Plotting code
+# From https://github.com/mininet/mininet/blob/master/examples/clustercli.py
+def colorsFor(seq):
+        "Return a list of background colors for a sequence"
+        colors = [ 'red', 'lightgreen', 'cyan', 'yellow', 'orange',
+                   'magenta', 'pink', 'grey', 'brown',
+                   'white' ]
+        slen, clen = len( seq ), len( colors )
+        reps = max( 1, slen / clen )
+        colors = colors * reps
+        colors = colors[ 0 : slen ]
+        return colors
+
+def do_plot(net):
+    "Plot topology colored by node placement"
+    # Import networkx if needed
+    global nx, plt, graphviz_layout
+    if not nx:
+        try:
+            # pylint: disable=import-error,no-member
+            # pylint: disable=import-outside-toplevel
+            import networkx
+            nx = networkx  # satisfy pylint
+            from matplotlib import pyplot
+            plt = pyplot   # satisfy pylint
+            import pygraphviz
+            assert pygraphviz  # silence pyflakes
+            # Networkx moved this around
+            if hasattr( nx, 'graphviz_layout' ):
+                graphviz_layout = nx.graphviz_layout
+            else:
+                graphviz_layout = nx.drawing.nx_agraph.graphviz_layout
+            # pylint: enable=import-error,no-member
+        except ImportError:
+            error( 'plot requires networkx, matplotlib and pygraphviz - '
+                    'please install them and try again\n' )
+            return
+    # Make a networkx Graph
+    g = nx.Graph()
+    mn = net
+    servers = getattr( mn, 'servers', [ 'localhost' ] )
+    hosts, switches = mn.hosts, mn.switches
+    nodes = hosts + switches
+    g.add_nodes_from( nodes )
+    links = [ ( link.intf1.node, link.intf2.node )
+                for link in net.links ]
+    g.add_edges_from( links )
+    # Pick some shapes and colors
+    # shapes = hlen * [ 's' ] + slen * [ 'o' ]
+    color = dict( zip( servers, colorsFor( servers ) ) )
+    # Plot it!
+    pos = graphviz_layout( g )
+    opts = { 'ax': None, 'font_weight': 'bold',
+                'width': 2, 'edge_color': 'darkblue' }
+    hcolors = [ color[ getattr( h, 'server', 'localhost' ) ]
+                for h in hosts ]
+    scolors = [ color[ getattr( s, 'server', 'localhost' ) ]
+                for s in switches ]
+    nx.draw_networkx( g, pos=pos, nodelist=hosts, node_size=800,
+                        label='host', node_color=hcolors, node_shape='s',
+                        **opts )
+    nx.draw_networkx( g, pos=pos, nodelist=switches, node_size=1000,
+                        node_color=scolors, node_shape='o', **opts )
+    # Get rid of axes, add title, and show
+    fig = plt.gcf()
+    ax = plt.gca()
+    ax.get_xaxis().set_visible( False )
+    ax.get_yaxis().set_visible( False )
+    fig.canvas.set_window_title( 'Mininet')
+    plt.title( 'Node Placement', fontweight='bold' )
+    plt.savefig('netTopo.png')
+
+def initialize5GNet(interactive, plot):
     bind_dir = "/home/vagrant/comnetsemu/app/network2_project/UERANSIM"
     net = Containernet(controller=Controller, link=TCLink)
 
@@ -70,6 +145,10 @@ def initialize5GNet(interactive):
                                             },
                                             bind_dir + "/open5gs_config/provisioning/db/profiles.json": {
                                                 "bind": "/tmp/profiles.json",
+                                                "mode": "ro",
+                                            },
+                                            bind_dir + "/open5gs_config/provisioning/db/account.js": {
+                                                "bind": "/tmp/account.js",
                                                 "mode": "ro",
                                             },
                                             bind_dir + "/open5gs_config/log/mongodb": {
@@ -530,7 +609,11 @@ def initialize5GNet(interactive):
         # Ping all open5gs hosts
         net.ping([mongoDb, webui, nrf, ausf, udm, pcf, nssf, bsf, udr, upf, smf, pcrf, hss, sgwc, sgwu, mme, amf])
         # Ping all UERANSIM hosts
-        #net.ping([amf, gnb, ue1])
+        net.ping([gnb, ue1, ue2])
+
+        # If plot is requested, plot the network
+        if plot:
+            do_plot(net)
 
         if interactive:
             spawnXtermDocker("mongoDb")
@@ -653,6 +736,14 @@ if __name__ == "__main__":
                         nargs="?",
                         help="Run the setup interactively with xterms")
 
+    # Flag to run the script plotting the network
+    parser.add_argument("-p",
+                        default=False,
+                        const=True,
+                        type=bool,
+                        nargs="?",
+                        help="Plots the network graph")
+
     # Flag to run the script with debug log enabled
     parser.add_argument("-d",
                         default=False,
@@ -669,4 +760,4 @@ if __name__ == "__main__":
     else:
         setLogLevel("info")
     
-    initialize5GNet(args.i)
+    initialize5GNet(args.i, args.p)
