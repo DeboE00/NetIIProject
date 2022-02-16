@@ -519,29 +519,6 @@ def initialize5GNet(interactive, plot):
                                     }                                      
                                 })
 
-        info("*** \t[UERANSIM]\tue2\n")
-        ue2 = net.addDockerHost("ue2",
-                                dimage="project:ueransim",
-                                ip="10.0.0.26/24",
-                                docker_args={                                       
-                                    "cap_add": [
-                                        "NET_ADMIN"
-                                    ],
-                                    "devices": "/dev/net/tun:/dev/net/tun:rwm",     
-                                    "hostname": "ue2",                                                                                                     
-                                    "volumes": {
-                                        bind_dir + "/custom-ue.1.yaml": {
-                                            "bind": "/UERANSIM/custom-ue.yaml",
-                                            "mode": "ro"
-                                        },
-                                        bind_dir + "/open5gs_config/log/ueransim": {
-                                            "bind": "/var/log/ueransim",
-                                            "mode": "rw"
-                                        },
-                                        "/dev": {"bind": "/dev", "mode": "rw"}
-                                    }                                      
-                                })
-
         info("*** Adding controller\n")
         net.addController("c0")
 
@@ -585,14 +562,13 @@ def initialize5GNet(interactive, plot):
         gnb.intfs[1].setIP('10.1.0.51/24')
 
         net.addLink(ue1, sUeransim, bw=1000, delay="1ms", intfName1="ue1-s2", intfName2="s2-ue1")
-        net.addLink(ue2, sUeransim, bw=1000, delay="1ms", intfName1="ue2-s2", intfName2="s2-ue2")
 
         info("\n*** Starting network\n")
         net.start()
         # Ping all open5gs hosts
         net.ping([mongoDb, webui, nrf, ausf, udm, pcf, nssf, bsf, udr, upf, smf, pcrf, hss, sgwc, sgwu, mme, amf])
         # Ping all UERANSIM hosts
-        net.ping([gnb, ue1, ue2])
+        net.ping([gnb, ue1])
 
         # If plot is requested, plot the network
         if plot:
@@ -619,7 +595,6 @@ def initialize5GNet(interactive, plot):
             spawnXtermDocker("amf")
             spawnXtermDocker("gnb")
             spawnXtermDocker("ue1")
-            spawnXtermDocker("ue2")
 
             CLI(net)
         else:
@@ -687,9 +662,6 @@ def initialize5GNet(interactive, plot):
 
             info("*** Starting UE 1...\n")
             ue1.sendCmd("./nr-ue -c custom-ue.yaml >> /var/log/ueransim/ue1.log 2>&1")
-
-            info("*** Starting UE 2...\n")
-            ue2.sendCmd("./nr-ue -c custom-ue.yaml >> /var/log/ueransim/ue2.log 2>&1")
 
             input("Emulation setup ready. Press enter to terminate")
     
