@@ -17,7 +17,65 @@ from mininet.link import TCLink
 from mininet.log import error, info, setLogLevel
 from mininet.node import Controller
 
-def initialize5GNet(interactive):
+# pylint: disable=global-statement
+nx, graphviz_layout, plt = None, None, None  # Will be imported on demand
+
+# Plotting code
+# From https://github.com/mininet/mininet/blob/master/examples/clustercli.py
+def do_plot(net):
+    "Plot topology colored by node placement"
+    # Import networkx if needed
+    global nx, plt, graphviz_layout
+    if not nx:
+        try:
+            # pylint: disable=import-error,no-member
+            # pylint: disable=import-outside-toplevel
+            import networkx
+            nx = networkx  # satisfy pylint
+            from matplotlib import pyplot
+            plt = pyplot   # satisfy pylint
+            import pygraphviz
+            assert pygraphviz  # silence pyflakes
+            # Networkx moved this around
+            if hasattr( nx, 'graphviz_layout' ):
+                graphviz_layout = nx.graphviz_layout
+            else:
+                graphviz_layout = nx.drawing.nx_agraph.graphviz_layout
+            # pylint: enable=import-error,no-member
+        except ImportError:
+            error( 'plot requires networkx, matplotlib and pygraphviz - '
+                    'please install them and try again\n' )
+            return
+    # Make a networkx Graph
+    g = nx.Graph()
+    mn = net
+    servers = getattr( mn, 'servers', [ 'localhost' ] )
+    hosts, switches = mn.hosts, mn.switches
+    nodes = hosts + switches
+    g.add_nodes_from( nodes )
+    links = [ ( link.intf1.node, link.intf2.node )
+                for link in net.links ]
+    g.add_edges_from( links )
+    # Plot it!
+    pos = graphviz_layout( g )
+    opts = { 'ax': None, 'width': 1, 'edge_color': '#00bfff',
+            'font_size': 9, 'font_color':'white' }
+    hcolors = [ "#0145ac"
+                for h in hosts ]
+    scolors = [ "#82c7a5"
+                for s in switches ]
+    nx.draw_networkx( g, pos=pos, nodelist=hosts, node_size=800,
+                        label='host', node_color=hcolors, node_shape='s',
+                        **opts )
+    nx.draw_networkx( g, pos=pos, nodelist=switches, node_size=1000,
+                        node_color=scolors, node_shape='o', **opts )
+    # Get rid of axes and title, and show
+    ax = plt.gca()
+    ax.get_xaxis().set_visible( False )
+    ax.get_yaxis().set_visible( False )
+    plt.savefig('netTopo.png',bbox_inches='tight',transparent=True)
+
+def initialize5GNet(interactive, plot):
     bind_dir = "/home/vagrant/comnetsemu/app/network2_project/UERANSIM"
     net = Containernet(controller=Controller, link=TCLink)
 
@@ -70,6 +128,10 @@ def initialize5GNet(interactive):
                                             },
                                             bind_dir + "/open5gs_config/provisioning/db/profiles.json": {
                                                 "bind": "/tmp/profiles.json",
+                                                "mode": "ro",
+                                            },
+                                            bind_dir + "/open5gs_config/provisioning/db/account.js": {
+                                                "bind": "/tmp/account.js",
                                                 "mode": "ro",
                                             },
                                             bind_dir + "/open5gs_config/log/mongodb": {
@@ -457,6 +519,29 @@ def initialize5GNet(interactive):
                                     }                                      
                                 })
 
+        info("*** \t[UERANSIM]\tue2\n")
+        ue2 = net.addDockerHost("ue2",
+                                dimage="project:ueransim",
+                                ip="10.0.0.26/24",
+                                docker_args={                                       
+                                    "cap_add": [
+                                        "NET_ADMIN"
+                                    ],
+                                    "devices": "/dev/net/tun:/dev/net/tun:rwm",     
+                                    "hostname": "ue2",                                                                                                     
+                                    "volumes": {
+                                        bind_dir + "/custom-ue.1.yaml": {
+                                            "bind": "/UERANSIM/custom-ue.yaml",
+                                            "mode": "ro"
+                                        },
+                                        bind_dir + "/open5gs_config/log/ueransim": {
+                                            "bind": "/var/log/ueransim",
+                                            "mode": "rw"
+                                        },
+                                        "/dev": {"bind": "/dev", "mode": "rw"}
+                                    }                                      
+                                })
+
         info("*** Adding controller\n")
         net.addController("c0")
 
@@ -500,14 +585,18 @@ def initialize5GNet(interactive):
         gnb.intfs[1].setIP('10.1.0.51/24')
 
         net.addLink(ue1, sUeransim, bw=1000, delay="1ms", intfName1="ue1-s2", intfName2="s2-ue1")
-        
+        net.addLink(ue2, sUeransim, bw=1000, delay="1ms", intfName1="ue2-s2", intfName2="s2-ue2")
 
         info("\n*** Starting network\n")
         net.start()
         # Ping all open5gs hosts
         net.ping([mongoDb, webui, nrf, ausf, udm, pcf, nssf, bsf, udr, upf, smf, pcrf, hss, sgwc, sgwu, mme, amf])
         # Ping all UERANSIM hosts
-        #net.ping([amf, gnb, ue1])
+        net.ping([gnb, ue1, ue2])
+
+        # If plot is requested, plot the network
+        if plot:
+            do_plot(net)
 
         if interactive:
             spawnXtermDocker("mongoDb")
@@ -530,7 +619,7 @@ def initialize5GNet(interactive):
             spawnXtermDocker("amf")
             spawnXtermDocker("gnb")
             spawnXtermDocker("ue1")
-            
+            spawnXtermDocker("ue2")
 
             CLI(net)
         else:
@@ -599,6 +688,9 @@ def initialize5GNet(interactive):
             info("*** Starting UE 1...\n")
             ue1.sendCmd("./nr-ue -c custom-ue.yaml >> /var/log/ueransim/ue1.log 2>&1")
 
+            info("*** Starting UE 2...\n")
+            ue2.sendCmd("./nr-ue -c custom-ue.yaml >> /var/log/ueransim/ue2.log 2>&1")
+
             input("Emulation setup ready. Press enter to terminate")
     
     except Exception as e:
@@ -627,6 +719,14 @@ if __name__ == "__main__":
                         nargs="?",
                         help="Run the setup interactively with xterms")
 
+    # Flag to run the script plotting the network
+    parser.add_argument("-p",
+                        default=False,
+                        const=True,
+                        type=bool,
+                        nargs="?",
+                        help="Plots the network graph")
+
     # Flag to run the script with debug log enabled
     parser.add_argument("-d",
                         default=False,
@@ -643,4 +743,4 @@ if __name__ == "__main__":
     else:
         setLogLevel("info")
     
-    initialize5GNet(args.i)
+    initialize5GNet(args.i, args.p)
