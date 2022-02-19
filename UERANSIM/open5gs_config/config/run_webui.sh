@@ -1,4 +1,5 @@
 #!/bin/bash
+# Launch the Open5GS webui waiting for MongoDB
 
 export MONGODB_STARTUP_TIME=15
 

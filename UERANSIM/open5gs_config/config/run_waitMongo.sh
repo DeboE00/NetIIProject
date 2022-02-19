@@ -1,4 +1,5 @@
 #!/bin/bash
+# Launch the specified Open5GS component waiting for the MongoDB database to be online
 
 export MONGODB_STARTUP_TIME=20
 

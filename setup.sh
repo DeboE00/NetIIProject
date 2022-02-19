@@ -1,4 +1,6 @@
 #!/bin/bash
+# Setup script
+
 # Specify here if you want to perform a complete recompile
 ADDITIONAL_DOCKER_PARAMS="--no-cache"
 # Setup the required docker-compose if not installed

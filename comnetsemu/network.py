@@ -20,6 +20,8 @@ from mininet.node import Controller
 # pylint: disable=global-statement
 nx, graphviz_layout, plt = None, None, None  # Will be imported on demand
 
+PLOT_IMAGE_NAME = "netTopo.png"
+
 # Plotting code
 # From https://github.com/mininet/mininet/blob/master/examples/clustercli.py
 def do_plot(net):
@@ -73,10 +75,11 @@ def do_plot(net):
     ax = plt.gca()
     ax.get_xaxis().set_visible( False )
     ax.get_yaxis().set_visible( False )
-    plt.savefig('netTopo.png',bbox_inches='tight',transparent=True)
+    plt.savefig(PLOT_IMAGE_NAME,bbox_inches='tight',transparent=True)
 
 def initialize5GNet(interactive, plot):
     bind_dir = "/home/vagrant/comnetsemu/app/network2_project/UERANSIM"
+    bind_dir_no_host = "/home/vagrant/"
     net = Containernet(controller=Controller, link=TCLink)
 
     try:
@@ -88,11 +91,10 @@ def initialize5GNet(interactive, plot):
                                     docker_args={
                                         "hostname": "mongodb",
                                         "volumes": {
-                                            # Disable temporary the mount dir, as it doesn't work
-                                            #bind_dir + "/mongodbdata/": {
-                                            #    "bind": "/data/db",
-                                            #    "mode": "rw",
-                                            #},
+                                            bind_dir_no_host + "/mongodbdata/": {
+                                                "bind": "/data/db",
+                                                "mode": "rw",
+                                            },
                                             bind_dir + "/open5gs_config/log/mongodb": {
                                                 "bind": "/var/log/mongodb",
                                                 "mode": "rw"

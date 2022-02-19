@@ -1,4 +1,6 @@
 #!/bin/sh
+# Script used to start the GNB within ComNetsEmu
+
 export AMF_STARTUP_TIME=30
 export IP_ADDR=$(ifconfig gnb1-s2 | grep 'inet' | cut -d ' ' -f 10)
 echo

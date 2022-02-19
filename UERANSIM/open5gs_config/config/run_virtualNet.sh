@@ -1,4 +1,5 @@
 #!/bin/bash
+# Launch the specified Open5GS component setting up a tunnel (for UE communication)
 
 echo "Launching $1..."
 

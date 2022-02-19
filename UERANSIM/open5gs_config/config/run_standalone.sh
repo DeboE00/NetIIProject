@@ -1,4 +1,5 @@
 #!/bin/bash
+# Simply launch the specified Open5GS component 
 
 echo "Launching $1..."
 

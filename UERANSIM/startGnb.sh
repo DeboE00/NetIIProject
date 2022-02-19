@@ -1,4 +1,6 @@
 #!/bin/sh
+# Script used to start the GNB inside the docker-compose containers
+
 export AMF_STARTUP_TIME=30
 export IP_ADDR=$(awk 'END{print $1}' /etc/hosts)
 echo
