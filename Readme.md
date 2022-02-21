@@ -14,7 +14,7 @@ The integration can be performed by dockerinzing the new components, ~~or connec
 ### Installation of the necessary files
 ```bash
 cd comnetsemu/app/
-git clone https://github.com/DeboE00/NetIIProject -o network2_project
+git clone https://github.com/DeboE00/NetIIProject network2_project
 cd network2_project
 sudo bash setup.sh
 ```
