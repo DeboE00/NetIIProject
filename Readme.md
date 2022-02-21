@@ -13,6 +13,9 @@ The integration can be performed by dockerinzing the new components, ~~or connec
 - `docker-compose`
 ### Installation of the necessary files
 ```bash
+cd comnetsemu/app/
+git clone https://github.com/DeboE00/NetIIProject -o network2_project
+cd network2_project
 sudo bash setup.sh
 ```
 ### Start up (without `ComNetsEmu`)
@@ -43,6 +46,16 @@ In order to test the UE network speed, enter inside the container, and run the f
 ip route del default
 ip route add default via 10.45.0.1 dev uesimtun0
 ip route add 10.45.0.0/16 dev uesimtun0
+```
+
+### UE troubleshooting
+In case the UE don't connect, it is possible to restart it by issuing the following commands:
+```bash
+docker exec -it ue1 /bin/bash
+top
+# Find the pid of the process called "nr-ue" than terminate with Ctrl+C
+kill <pid>
+./nr-ue -c custom-ue.yaml &
 ```
 
 ### Access the Open5GS web terminal
